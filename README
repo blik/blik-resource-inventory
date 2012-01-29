@@ -1,0 +1,8 @@
+
+                    Blik Resource Inventory
+
+This is lightweight inventory system for storing and managing any types of resources.
+Blik Resource Inventory allows you to create your specific structure of resources and
+implement custom login for this resources.
+
+Blik Resource Inventory store their objects in NoSQL database.
