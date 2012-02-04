@@ -154,13 +154,51 @@ class BaseSpecification:
         params_dict.update(kwargs)
 
         self.params_dict = params_dict
+        self.parent_spec = None
+
+    def set_parent_specification(self, parent_spec):
+        '''setup parent specification object'''
+        if not isinstance(parent_spec, BaseSpecification):
+            raise BIValueError('Parent specification should has BaseSpecification type')
+
+        t_name = parent_spec.type_name()
+        parent_t_name = self.parent_type_name()
+        if t_name != parent_t_name:
+            raise BIValueError('<%s> type specification expected as parent specification!' % parent_t_name)
+
+        self.parent_spec = parent_spec
 
     def to_dict(self):
         '''return specification as dict'''
         return self.params_dict
 
     def type_name(self):
-        return self.params_dict.get('type_name', '')
+        return self.params_dict.get('type_name', None)
+
+    def parent_type_name(self):
+        return self.params_dict.get('parent_type_name', None)
+
+    def get_params_spec(self):
+        '''Get parameters specifications dict'''
+        ret_dict = {}
+        if self.parent_spec:
+            ret_dict.update(self.parent_spec.get_params_spec())
+
+        specs = self.params_dict.get('params_spec', [])
+        for spec_item in specs:
+            spec = ParameterSpecification(spec_item)
+            ret_dict[spec.param_name] = spec
+
+        return ret_dict
+
+    def is_inherit(self, type_name):
+        if self.type_name() == type_name:
+            return True
+
+        if self.parent_spec:
+            return self.parent_spec.is_inherit(type_name)
+
+        return False
 
     def validate(self):
         '''Validate base specification parameters'''
@@ -181,20 +219,15 @@ class BaseSpecification:
         '''Get information about entity's indexes'''
         raise Exception('This method is not implemented')
 
-    def validate_entity(self, params_dict, spec=None):
+    def validate_entity(self, params_dict, specs=None):
         '''Validate entity in accordance to specification'''
         if not isinstance(params_dict, dict):
             raise BIValueError('@params_dict should has a dictionary type!')
 
-        params_spec_map = {}
-        if spec == None:
-            specs = self.params_dict['params_spec']
-            for spec_item in specs:
-                spec = ParameterSpecification(spec_item)
-                params_spec_map[spec.param_name] = spec
+        if specs == None:
+            params_spec_map = self.get_params_spec()
         else:
-            params_spec_map.update(spec)
-
+            params_spec_map = specs
 
         for spec_item in params_spec_map.values():
             if spec_item.is_mandatory() and (spec_item.param_name not in params_dict):
@@ -300,11 +333,17 @@ class BaseEntity:
         self.params_dict = params_dict
         self.additional_parameters = params_dict.get('additional_parameters', {})
 
-
     def specification(self):
         '''return entity specification'''
         spec_name = self.get_specification_name()
-        return self.SPECIFICATIONS[spec_name]
+        spec = self.SPECIFICATIONS.get(spec_name, None)
+        if spec is None:
+            raise BIException('Specification <%s> is not registered!'% (spec_name))
+
+        return spec
+
+    def instance_of(self, type_name):
+        return self.specification().is_inherit(type_name)
 
     def operations_help(self):
         '''return help string with get/set operations'''
@@ -427,12 +466,13 @@ class Collection(BaseEntity):
             raise BIValueError('Object of Resource expected, but <%s> occured!'% self.__class__.__name__)
 
         spec = self.specification()
-        allowed_types = spec.get_allowed_types()
 
-        res_spec = resource.get_specification_name()
-        if res_spec not in allowed_types:
+        for type_name in spec.get_allowed_types():
+            if resource.instance_of(type_name):
+                break
+        else:
             raise BIValueError('Resource with type <%s> is not allowed for collection <%s>'%
-                                                (res_spec, self.get_specification_name()))
+                                                (resource.get_specification_name(), self.get_specification_name()))
 
         resources = self.get_resources()
 
@@ -477,7 +517,7 @@ class Connection(BaseEntity):
         if not isinstance(res_obj, Resource):
             raise BIValueError('%s resource should has Resource type!'% res_desc)
 
-        if res_obj.get_specification_name() != res_type:
+        if not res_obj.instance_of(res_type):
             raise BIValueError('%s resource should be specified by <%s> specification!'% (res_desc, res_type))
 
         res_id = res_obj.get__id()

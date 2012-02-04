@@ -36,16 +36,23 @@ class TestBaseEntities(unittest.TestCase):
 
         spec = ResourceSpecification({'type_name': 'TestSpec'}, params_spec = [param_1, param_2])
 
-        return spec
+        param = {'param_name': 'top_param',
+                 'param_type': 'string'}
+        spec2 = ResourceSpecification(type_name='TopResourceSpec', parent_type_name='TestSpec', params_spec=[param])
+        spec2.set_parent_specification(spec)
+
+        return spec, spec2
 
     def test_resource_spec(self):
         check_exception(lambda: ResourceSpecification())
         check_exception(lambda: ResourceSpecification(1, 2))
         check_exception(lambda: ResourceSpecification(1), BIValueError)
 
-        spec = self.create_test_res_spec()
-        self.assertEqual(spec.type_name(), 'TestSpec')
+        specs = self.create_test_res_spec()
+        self.assertEqual(specs[0].type_name(), 'TestSpec')
+        self.assertEqual(specs[1].type_name(), 'TopResourceSpec')
 
+        spec = specs[0]
         spec.validate()
         spec.validate_entity({'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]})
 
@@ -88,6 +95,12 @@ class TestBaseEntities(unittest.TestCase):
         ret_value = spec.to_dict()
         self.assertTrue(isinstance(ret_value, dict))
         self.assertEqual(ret_value['params_spec'][0], bad_param)
+
+        spec = specs[1]
+        spec.validate()
+        check_exception(lambda: spec.validate_entity({'fake': {'child_param_1': '33ee'}}), BIValueError)
+        check_exception(lambda: spec.validate_entity({'top_param': 'text'}), BIValueError)
+        spec.validate_entity({'top_param': 'text', 'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]})
 
     def test_collection_spec(self):
         param_1 = { 'param_name': 'test_param_1',
@@ -132,8 +145,8 @@ class TestBaseEntities(unittest.TestCase):
         res = Resource(specification_name='TestSpec')
         check_exception(lambda: res.validate(), BIValueError)
 
-        spec = self.create_test_res_spec()
-        Resource.setup_specification([spec])
+        specs = self.create_test_res_spec()
+        Resource.setup_specification(specs)
 
         res = Resource(some_attr=1)
         check_exception(lambda: res.validate(), BIValueError)
@@ -175,14 +188,16 @@ class TestBaseEntities(unittest.TestCase):
 
         check_exception(lambda: collection.append_resource('fake'), BIValueError)
 
+        fake_spec = ResourceSpecification({'type_name': 'SomeFakeSpec', 'params_spec': []})
+        Resource.setup_specification([fake_spec])
         res = Resource(specification_name='SomeFakeSpec')
         check_exception(lambda: collection.append_resource(res), BIValueError)
 
-        spec = self.create_test_res_spec()
-        Resource.setup_specification([spec])
+        specs = self.create_test_res_spec()
+        Resource.setup_specification(specs)
 
-        add_params = {'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]}
-        res = Resource(specification_name='TestSpec', resource_status='new', additional_parameters=add_params)
+        add_params = {'top_param':'', 'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]}
+        res = Resource(specification_name='TopResourceSpec', resource_status='new', additional_parameters=add_params)
         res.validate()
 
         check_exception(lambda: collection.append_resource(res))
@@ -209,17 +224,19 @@ class TestBaseEntities(unittest.TestCase):
         conn.set_test_param_2(22)
         conn.validate()
 
-        spec = self.create_test_res_spec()
-        Resource.setup_specification([spec])
+        specs = self.create_test_res_spec()
+        Resource.setup_specification(specs)
 
-        add_params = {'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]}
-        res1 = Resource(specification_name='TestSpec', resource_status='new', additional_parameters=add_params)
+        add_params = {'top_param':'', 'test_param_2': [{'child_param_1': 'test1'}, {'child_param_1': 'test2'}]}
+        res1 = Resource(specification_name='TopResourceSpec', resource_status='new', additional_parameters=add_params)
         res1.validate()
 
         add_params = {'test_param_2': [{'child_param_1': 'some_value'}]}
         res2 = Resource(specification_name='TestSpec', resource_status='active', additional_parameters=add_params)
         res2.validate()
 
+        fake_spec = ResourceSpecification({'type_name': 'FakeSpec', 'params_spec': []})
+        Resource.setup_specification([fake_spec])
         fake_res = Resource(specification_name='FakeSpec')
 
         check_exception(lambda: conn.connect(fake_res, res2), BIValueError)
