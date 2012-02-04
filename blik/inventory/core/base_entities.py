@@ -8,7 +8,7 @@ Author:  Konstantin Andrusenko
 
 from inv_exceptions import BIException, BIValueError
 
-NOT_FOUND = '**not_found**'
+NOT_FOUND = None
 
 class ParameterSpecification:
     '''Specification of entity parameter'''
@@ -245,11 +245,11 @@ class ConnectionSpecification(BaseSpecification):
         BaseSpecification.validate(self)
 
         if not self.params_dict.get('connecting_type', None):
-            raise Exception('Connecting resource type is not specified for connection "%s"!'%
+            raise BIValueError('Connecting resource type is not specified for connection "%s"!'%
                                 self.type_name())
 
         if not self.params_dict.get('connected_type', None):
-            raise Exception('Connected resource type is not specified for connection "%s"!'%
+            raise BIValueError('Connected resource type is not specified for connection "%s"!'%
                                 self.type_name())
 
     def get_connectors_types(self):
@@ -267,14 +267,13 @@ class BaseEntity:
     '''
 
     SPECIFICATIONS = {}
-    BASE_ATTRIBUTES = ['specification_name'] #should be extended in inherited class
 
     @classmethod
     def setup_specification(cls, spec_list):
         '''Setup list of resources specifications'''
         for spec in spec_list:
-            if not isinstance(spec, ResourceSpecification):
-                raise Exception('Specification should be an object of ResourceSpecification')
+            if not isinstance(spec, BaseSpecification):
+                raise Exception('Specification should be an object of BaseSpecification')
 
             cls.SPECIFICATIONS[spec.type_name()] = spec
 
@@ -283,6 +282,8 @@ class BaseEntity:
         *args - you can put parameters dict as no-named parameter
         **kwargs - key-value attributes
         '''
+        self._base_attributes = ['specification_name', 'additional_parameters',
+                                    'description', 'create_date', 'mod_date'] #should be extended in inherited class
         if args:
             if len(args) != 1:
                 raise Exception('Constructor of <%s> expect one no-named parameter only!'%
@@ -298,6 +299,7 @@ class BaseEntity:
 
         self.params_dict = params_dict
         self.additional_parameters = params_dict.get('additional_parameters', {})
+
 
     def specification(self):
         '''return entity specification'''
@@ -319,7 +321,7 @@ class BaseEntity:
     def __get_attribute(self, attr_name, default_value=None):
         '''return value of @attr_name attribute of entity'''
 
-        if attr_name in self.BASE_ATTRIBUTES:
+        if attr_name in self._base_attributes:
             value = self.params_dict.get(attr_name, default_value)
         else:
             value = self.additional_parameters.get(attr_name, default_value)
@@ -327,7 +329,7 @@ class BaseEntity:
 
     def __set_attribute(self, attr_name, attr_value):
         '''set value of @attr_name attribute of entity'''
-        if attr_name in self.BASE_ATTRIBUTES:
+        if attr_name in self._base_attributes:
             self.params_dict[attr_name] = attr_value
         else:
             self.additional_parameters[attr_name] = attr_value
@@ -367,16 +369,19 @@ class BaseEntity:
 
     def validate(self):
         '''Validate entity attributes'''
+        for attr in self.params_dict.keys():
+            if attr not in self._base_attributes:
+                raise BIValueError('Attribute <%s> is not expected!'% attr)
 
         spec_type_name = self.params_dict.get('specification_name', None)
         if not spec_type_name:
-            raise Exception('Entity type should be specified')
+            raise BIException('Entity type should be specified')
 
         if type(self.additional_parameters) != dict:
-            raise Exception('Additional attributes should has dictionary type')
+            raise BIValueError('Additional attributes should has dictionary type')
 
         if spec_type_name not in self.SPECIFICATIONS:
-            raise Exception('Entity type "%s" is not expected!'% spec_type_name)
+            raise BIValueError('Entity type "%s" is not expected!'% spec_type_name)
 
         spec = self.specification()
         spec.validate_entity(self.additional_parameters)
@@ -386,64 +391,54 @@ class Resource(BaseEntity):
     '''
     This class incapsulate resources attributes and operations
     '''
+
     def __init__(self, *args, **kwargs):
         '''Constructor
         '''
         BaseEntity.__init__(self, *args, **kwargs)
-
-        self.BASE_ATTRIBUTES += ['resource_status', 'external_system', 'location',
-                        'department', 'description', 'owner', 'create_date', 'mod_date']
-
+        self._base_attributes += ['resource_status', 'external_system', 'location', 'department', 'owner']
 
     def validate(self):
         '''Validate resources attributes'''
-        if self.get_resource_status() is NOT_FOUND:
-            raise Exception('Resource status is not specified')
-
         BaseEntity.validate(self)
+
+        if self.get_resource_status() is NOT_FOUND:
+            raise BIValueError('Resource status is not specified')
 
 
 class Collection(BaseEntity):
     '''
     This class incapsulate collections attributes and operations
     '''
+
     def __init__(self, *args, **kwargs):
         '''Constructor
         '''
         BaseEntity.__init__(self, *args, **kwargs)
 
-        self.BASE_ATTRIBUTES += ['resources' 'description', 'create_date', 'mod_date']
+        self._base_attributes += ['resources']
 
+        self.set_resources([])
 
-    def validate(self):
-        '''Validate resources attributes'''
-        resoruces = self.get_resources()
-        if resources is NOT_FOUND:
-            raise Exception('Resource is not specified for collection')
-
-        if not isinstance(resources, list):
-            raise Exception('Resources attribute should has list type')
-
-        BaseEntity.validate(self)
 
     def append_resource(self, resource):
         '''append resource to collection'''
         if not isinstance(resource, Resource):
-            raise Exception('Object of Resource expected, but <%s> occured!'% self.__class__.__name__)
+            raise BIValueError('Object of Resource expected, but <%s> occured!'% self.__class__.__name__)
 
         spec = self.specification()
         allowed_types = spec.get_allowed_types()
 
         res_spec = resource.get_specification_name()
         if res_spec not in allowed_types:
-            raise Exception('Resource with type <%s> is not allowed for collection <%s>'%
+            raise BIValueError('Resource with type <%s> is not allowed for collection <%s>'%
                                                 (res_spec, self.get_specification_name()))
 
         resources = self.get_resources()
 
         res_id = resource.get__id()
         if res_id is NOT_FOUND:
-            raise Exception('Resource has not _id attribute (not saved in database).')
+            raise BIValueError('Resource has not _id attribute (not saved in database).')
 
         resources.append(res_id)
         self.set_resources(resources)
@@ -452,14 +447,55 @@ class Collection(BaseEntity):
         '''remove resource from collection'''
         res_id = resource.get__id()
         if res_id is NOT_FOUND:
-            raise Exception('Resource has not _id attribute (not saved in database).')
+            raise BIValueError('Resource has not _id attribute (not saved in database).')
 
         resources = self.get_resources()
         try:
             resources.remove(res_id)
         except ValueError:
-            raise Exception('Resource with ID "%s" is not exists in this collection')
+            raise BIValueError('Resource with ID "%s" is not exists in this collection')
 
         self.set_resources(resources)
 
+
+class Connection(BaseEntity):
+    '''
+    This class incapsulate connections attributes and operations
+    '''
+
+    def __init__(self, *args, **kwargs):
+        '''Constructor
+        '''
+        BaseEntity.__init__(self, *args, **kwargs)
+
+        self._base_attributes += ['connecting_resource', 'connected_resource']
+
+    def __get_res_id(self, res_type, res_obj, res_desc):
+        '''
+        Validate resource object and return it ID
+        '''
+        if not isinstance(res_obj, Resource):
+            raise BIValueError('%s resource should has Resource type!'% res_desc)
+
+        if res_obj.get_specification_name() != res_type:
+            raise BIValueError('%s resource should be specified by <%s> specification!'% (res_desc, res_type))
+
+        res_id = res_obj.get__id()
+        if res_id is NOT_FOUND:
+            raise BIValueError('%s resource has not _id attribute (not saved in database).'% res_desc)
+
+        return res_id
+
+    def connect(self, connecting_res, connected_res):
+        '''
+        Connect resources if connection specification allowed
+        '''
+        spec = self.specification()
+        connecting_type, connected_type = spec.get_connectors_types()
+
+        connecting_id = self.__get_res_id(connecting_type, connecting_res, 'Connecting')
+        connected_id = self.__get_res_id(connected_type, connected_res, 'Connected')
+
+        self.set_connecting_resource(connecting_id)
+        self.set_connected_resource(connected_id)
 
