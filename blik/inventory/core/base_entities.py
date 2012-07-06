@@ -168,6 +168,10 @@ class BaseSpecification:
 
         self.parent_spec = parent_spec
 
+    def set__id(self, spec_id):
+        '''setup specification ID'''
+        self.params_dict['__id'] = spec_id
+
     def to_dict(self):
         '''return specification as dict'''
         return self.params_dict
