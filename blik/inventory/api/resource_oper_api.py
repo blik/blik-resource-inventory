@@ -78,5 +78,3 @@ class ResourceOperationalAPI:
         self.db_conn.remove_entity(CommonDatabaseAPI.ET_RESOURCE, resource_id)
 
 
-filter_q = {'resource_status': 'active',
-            'device_role__in': ['access', 'pe']}
