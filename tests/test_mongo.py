@@ -3,9 +3,9 @@
 
 import unittest
 from pymongo import Connection, objectid
-from mongo import MongoDatabaseAPI
+from blik.inventory.backend.mongo import MongoDatabaseAPI
 from blik.inventory.core.inv_exceptions import *
-
+import time
 
 DB_NAME = "Test_BlikRI"
 
@@ -145,4 +145,5 @@ class TestMongoAPI(unittest.TestCase):
 if __name__ == '__main__':
     drop_test_database()
     create_database_entities()
+    time.sleep(1)
     unittest.main()
