@@ -1,11 +1,12 @@
 from blik.inventory.backend.manager import BackendManager
 from blik.inventory.backend.common import  CommonDatabaseAPI
+from blik.inventory.core.base_entities import Resource
 
 
 class ResourceOperationalAPI:
     def __init__(self, db_conn):
-        self.db_conn = BackendManager.get_scoped_backend()
-        self.__cache_entities_types()
+        self.db_conn = self.db_conn = CommonDatabaseAPI(db_conn)#BackendManager.get_scoped_backend()
+        #self.__cache_entities_types()
 
     def createResource(self, resource_type, status, description=None,
                     external_system=None, location=None, department=None, owner=None, **add_params):

@@ -19,7 +19,7 @@ class ConnectionOperationalAPI():
         '''
 
         raw_connection = self.db_conn.get_entity_conn(CommonDatabaseAPI.ET_CONNECTION, conn_id)
-        #print raw_connection
+
         connection = Connection(raw_connection)
         print connection.to_dict()
 
@@ -33,7 +33,6 @@ class ConnectionOperationalAPI():
         for param_name, param_value in add_params.items():
             connection.set_attribute(param_name, param_value)
 
-        print "update>>>",connection.to_dict()
         connection.connect(connecting_res_id, connected_res_id)
         self.db_conn.save_entity(CommonDatabaseAPI.ET_CONNECTION, connection.to_dict())
 
