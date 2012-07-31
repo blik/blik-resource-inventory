@@ -189,6 +189,7 @@ class BaseSpecification:
             ret_dict.update(self.parent_spec.get_params_spec())
 
         specs = self.params_dict.get('params_spec', [])
+
         for spec_item in specs:
             spec = ParameterSpecification(spec_item)
             ret_dict[spec.param_name] = spec
@@ -407,11 +408,12 @@ class BaseEntity:
     def to_dict(self):
         '''return entity attributes as dict'''
         self.params_dict['additional_parameters'] = self.additional_parameters
-
+            
         return self.params_dict
 
     def validate(self):
         '''Validate entity attributes'''
+
         for attr in self.params_dict.keys():
             if attr not in self._base_attributes:
                 raise BIValueError('Attribute <%s> is not expected!'% attr)
@@ -424,7 +426,8 @@ class BaseEntity:
             raise BIValueError('Additional attributes should has dictionary type')
 
         if spec_type_name not in self.SPECIFICATIONS:
-            raise BIValueError('Entity type "%s" is not expected!'% spec_type_name)
+
+            raise BIValueError('Entity type "%s" is not expected! %s'% (spec_type_name, self.SPECIFICATIONS))
 
         spec = self.specification()
         spec.validate_entity(self.additional_parameters)
@@ -497,7 +500,7 @@ class Collection(BaseEntity):
         try:
             resources.remove(res_id)
         except ValueError:
-            raise BIValueError('Resource with ID "%s" is not exists in this collection')
+            raise BIValueError('Resource with ID "%s" is not exists in this collection.'%res_id)
 
         self.set_resources(resources)
 
