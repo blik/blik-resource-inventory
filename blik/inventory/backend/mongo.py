@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Purpose: Blik Inventory API to Mongo DB
+Created: 29.01.2012
+Author:  Aleksey Bogoslovskyi
+"""
 
 from pymongo import Connection, errors, objectid
 from common import CommonDatabaseAPI
@@ -24,16 +29,20 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
     def close(self):
         self.connection.disconnect()
 
+    def _check_ent_type(self, ent_type):
+        if ent_type not in [self.ET_RESOURCE, self.ET_CONNECTION, self.ET_COLLECTION, self.ET_SPECIFICATION]:
+            raise BIValueError("Entity type \"%s\" is not supported" %ent_type) 
+
     def get_entity(self, ent_type, entity_id):
+        self._check_ent_type(ent_type)
         collection = self.connection[self.database][ent_type]
         cursor = collection.find_one({"_id" : objectid.ObjectId(str(entity_id))})
         if cursor:
             return cursor
         else:
             raise BIValueError("Can't find information about record with entity_id %s in %s collection" %(entity_id, ent_type))
-    
-    def find_entities(self, ent_type, obj_filter = None):
-        collection = self.connection[self.database][ent_type]
+
+    def _get_filter_query(self, obj_filter):
         query = {}
         if obj_filter:
             if not isinstance(obj_filter, dict):
@@ -52,12 +61,18 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
                     query["__".join(k[0:-1])] = {"$"+str(k[-1]) : value}
                 else:
                     query[key] = value
+        return query
+
+    def find_entities(self, ent_type, obj_filter = None):
+        self._check_ent_type(ent_type)
+        collection = self.connection[self.database][ent_type]
         entities = []
-        for item in collection.find(query):
+        for item in collection.find(self._get_filter_query(obj_filter)):
             entities.append(item)
         return entities
 
     def save_entity(self, ent_type, entity_dict):
+        self._check_ent_type(ent_type)
         if not isinstance(entity_dict, dict):
             raise BIValueError("Function save_entity of <%s> expect dictionary as entity_dict parameter!" %self.__class__.__name__)
         collection = self.connection[self.database][ent_type]
@@ -69,5 +84,6 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
         return entity_dict["_id"]
 
     def remove_entity(self, ent_type, entity_id):
+        self._check_ent_type(ent_type)
         collection = self.connection[self.database][ent_type]
         collection.remove({"_id" : objectid.ObjectId(str(entity_id))})
