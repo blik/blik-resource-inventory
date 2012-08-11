@@ -45,7 +45,13 @@ class TestMongoAPI(unittest.TestCase):
         connection = MongoDatabaseAPI("localhost:100500", DB_NAME)
         self.assertRaises(BIException, connection.connect)
 
-    def test_02_get_entity(self, entity_id = "5010319237adc71128000001"):
+    def test_02__check_ent_type(self):
+        #   Try use wrong collection
+        connection = MongoDatabaseAPI("localhost:wrong_port", DB_NAME)
+        self.assertRaises(BIValueError, connection._check_ent_type, 'wrong_collection')
+
+
+    def test_03_get_entity(self, entity_id = "5010319237adc71128000001"):
         connection = MongoDatabaseAPI("localhost", DB_NAME)
         connection.connect()
 
@@ -59,7 +65,7 @@ class TestMongoAPI(unittest.TestCase):
 
         connection.close()
 
-    def test_03_find_entities(self):
+    def test_04_find_entities(self):
         connection = MongoDatabaseAPI("localhost", DB_NAME)
         connection.connect()
         #   Given wrong object filter type
@@ -90,7 +96,7 @@ class TestMongoAPI(unittest.TestCase):
         self.assertEqual(api_result.sort(), result.sort())
         connection.close()
 
-    def test_04_save_entity(self):
+    def test_05_save_entity(self):
         connection = MongoDatabaseAPI("localhost", DB_NAME)
         connection.connect()
         #   Given wrong record type to save
@@ -120,7 +126,7 @@ class TestMongoAPI(unittest.TestCase):
         conn.disconnect()
         connection.close()
 
-    def test_05_remove_entity(self):
+    def test_06_remove_entity(self):
         connection = MongoDatabaseAPI("localhost", DB_NAME)
         connection.connect()
         conn = Connection()
