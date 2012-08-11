@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Purpose: Blik Inventory API to Mongo DB
-Created: 29.01.2012
+Created: 26.08.2012
 Author:  Aleksey Bogoslovskyi
 """
 
