@@ -30,13 +30,15 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
         self.connection.disconnect()
 
     def _check_ent_type(self, ent_type):
-        if ent_type not in [self.ET_RESOURCE, self.ET_CONNECTION, self.ET_COLLECTION, self.ET_SPECIFICATION]:
+        if ent_type not in self.SUPPORTED_ENT_TYPES:
             raise BIValueError("Entity type \"%s\" is not supported" %ent_type) 
 
     def get_entity(self, ent_type, entity_id):
         self._check_ent_type(ent_type)
+        self.connect()
         collection = self.connection[self.database][ent_type]
         cursor = collection.find_one({"_id" : objectid.ObjectId(str(entity_id))})
+        self.close()
         if cursor:
             return cursor
         else:
@@ -53,7 +55,7 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
                     if isinstance(value, list):
                         new = []
                         for item in value:
-                            new.append(objectid.ObjectId(str(item)))
+                            new.append(str(objectid.ObjectId(str(item))))
                         value = new
                     else:
                         value = objectid.ObjectId(str(value))
@@ -68,6 +70,7 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
         collection = self.connection[self.database][ent_type]
         entities = []
         for item in collection.find(self._get_filter_query(obj_filter)):
+            item["_id"] = str(item["_id"])
             entities.append(item)
         return entities
 

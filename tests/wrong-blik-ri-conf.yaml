@@ -1,0 +1,3 @@
+backend: mongodb
+    db_connect_string: "localhost:27017"
+    db_name: Test_BlikRI

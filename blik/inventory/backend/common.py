@@ -5,7 +5,8 @@ class CommonDatabaseAPI:
     ET_CONNECTION = 'connection'
     ET_COLLECTION = 'collection'
     ET_SPECIFICATION = 'specification'
-
+    SUPPORTED_ENT_TYPES = [ET_RESOURCE, ET_CONNECTION, ET_COLLECTION, ET_SPECIFICATION]
+    
     def __init__(self, conn_string):
         self.conn_string = conn_string
 
