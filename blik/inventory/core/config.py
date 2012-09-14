@@ -44,6 +44,6 @@ class InventoryConfiguration:
                 raise BIException("Blik Resource Inventory don't support <%s> backend type!" %self.backend)
             return backend_conn_obj
         except IOError, err:
-            raise Exception("Configuration file is invalid:", err.strerror)
+            raise Exception("Configuration file <%s> is invalid: %s" %(config_file, err.strerror))
         except yaml.YAMLError, exc:
-            raise Exception("Error in configuration file:", exc)
+            raise Exception("Error in configuration file <%s>: %s" %(config_file, exc))
