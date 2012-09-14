@@ -26,7 +26,7 @@ class TestInventoryConfiguration(unittest.TestCase):
         #   Use wrong backend configuration parameter
         self.assertRaises(Exception, conf.get_backend_db, "./tests/wrong-blik-ri-conf_2.yaml")
         #   Use wrong path to configuration file
-        conn_obj = conf.get_backend_db("./conf/blik-ri-conf.yaml")
+        conn_obj = conf.get_backend_db("./blik/inventory/conf/blik-ri-conf.yaml")
         self.assertEqual(isinstance(conn_obj, object), True)
 
 if __name__ == '__main__':

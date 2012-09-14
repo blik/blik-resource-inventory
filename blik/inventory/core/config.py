@@ -6,9 +6,10 @@ Created: 13.09.2012
 Author:  Konstantin Andrusenko & Aleksey Bogoslovskyi
 """
 
-import yaml
+import os
 import sys
-sys.path.append('../../../')
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
+import yaml
 from inv_exceptions import BIException
 from blik.inventory.backend.mongo import *
 
