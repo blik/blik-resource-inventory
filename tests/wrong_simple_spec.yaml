@@ -1,0 +1,39 @@
+specifications:
+- type_name: Interface
+parameters:
+        - param_name: interface_type
+          param_type: string
+          description: "interface type param"
+          mandatory: true
+          possible_values: ["serial", "ethernet", "fiber", "wireless"]
+          default_value: "ethernet"
+        - param_name: interface_count
+          param_type: integer
+          description: "Interface count"
+          mandatory: true
+          possible_values: [1, 2, 3, 4]
+          default_value: 2
+        - param_name: interface_bandwidth
+          param_type: integer
+          description: "Interface bandwidth in MB/s"
+          mandatory: false
+          possible_values: [1, 10, 100, 1000]
+
+- type_name: Device
+  parameters:
+        - param_name: test_param
+          param_type: integer
+          description: some descr
+          mandatory: False
+          possible_values: [1,2,3,4]
+          default_value: 1
+
+- type_name: TestSpec
+  parent_type_name: Device
+  parameters:
+        - param_name: test_param
+          param_type: integer
+          description: some descr
+          mandatory: False
+          possible_values: [1,2,3,4]
+          default_value: 1
