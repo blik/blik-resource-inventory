@@ -1,24 +1,30 @@
-from blik.inventory.backend.manager import BackendManager
 from blik.inventory.backend.common import  CommonDatabaseAPI
+from blik.inventory.backend.mongo import  MongoDatabaseAPI
 from blik.inventory.core.base_entities import Resource
 
+ET_RESOURCE = 'resource'
 
 class ResourceOperationalAPI:
-    def __init__(self, db_conn):
-        self.db_conn = CommonDatabaseAPI(db_conn)#BackendManager.get_scoped_backend()
-        #self.__cache_entities_types()
+    def __init__(self, conn_string, database):
+        self.conn_string = conn_string
+        self.database = database
+        
+        self.db_conn = MongoDatabaseAPI(conn_string, database)
 
     def createResource(self, resource_type, status, description=None,
                     external_system=None, location=None, department=None, owner=None, **add_params):
         '''Create resource object and save it into database
         @return created resource object
         '''
+
         resource = Resource(specification_name=resource_type, resource_status=status,
                 description=description, external_system=external_system, location=location,
                 department=department, owner=owner, additional_parameters=add_params)
         resource.validate()
 
+        self.db_conn.connect()
         res_id = self.db_conn.save_entity(CommonDatabaseAPI.ET_RESOURCE, resource.to_dict())
+        self.db_conn.close()
 
         resource.set__id(res_id)
 
@@ -29,6 +35,8 @@ class ResourceOperationalAPI:
         '''Update resource information
         Find resource in database by ID and update all non-None passed attributes
         '''
+
+        self.db_conn.connect()
         raw_resource = self.db_conn.get_entity(CommonDatabaseAPI.ET_RESOURCE, resource_id)
         resource = Resource(raw_resource)
 
@@ -46,27 +54,36 @@ class ResourceOperationalAPI:
             resource.set_owner(owner)
 
         for param_name, param_value in add_params.items():
-            resource.set_attribute(param_name, param_value)
+            for key, value  in param_value.items():
+                resource.set_attribute(key, value)
 
         resource.validate()
         self.db_conn.save_entity(CommonDatabaseAPI.ET_RESOURCE, resource.to_dict())
+        self.db_conn.close()
 
         return resource
 
     def getResourceInfo(self, resource_id):
         '''Find resource in database by ID and return Resource object
         '''
+
+        self.db_conn.connect()
         raw_resource = self.db_conn.get_entity(CommonDatabaseAPI.ET_RESOURCE, resource_id)
+        self.db_conn.close()
+
         resource = Resource(raw_resource)
+
         return resource
 
-    def findResources(self, **resource_filter):
+    def findResources(self, resource_filter):
         '''Find resources by filter and return found Resource objects
         Filter should be dictionary where key = resource attribute with
         optional qualificator suffix (__in, __gt, __ge, __lw, __le)
-
         '''
+
+        self.db_conn.connect()
         raw_resources = self.db_conn.find_entities(CommonDatabaseAPI.ET_RESOURCE, resource_filter)
+        self.db_conn.close()
 
         ret_list = []
         for res in raw_resources:
@@ -76,6 +93,7 @@ class ResourceOperationalAPI:
 
     def removeResource(self, resource_id):
         '''Remove resource from database'''
+
+        self.db_conn.connect()
         self.db_conn.remove_entity(CommonDatabaseAPI.ET_RESOURCE, resource_id)
-
-
+        self.db_conn.close()

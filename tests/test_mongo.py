@@ -54,13 +54,14 @@ class TestMongoAPI(unittest.TestCase):
     def test_03_get_entity(self, entity_id = "5010319237adc71128000001"):
         connection = MongoDatabaseAPI("localhost", DB_NAME)
         connection.connect()
+        self.maxDiff = None
 
         #   Try get information about entity that not exist
         self.assertRaises(BIValueError, connection.get_entity, MongoDatabaseAPI.ET_RESOURCE, "some_fake_id")
 
         #   Get information about entity that exist
         api_result = connection.get_entity(MongoDatabaseAPI.ET_RESOURCE, entity_id)
-        result = {"_id" : objectid.ObjectId("5010319237adc71128000001"), "res_type" : "computer", "res_status" : "standby", "owner" : "KST", "external_system" : "", "description" : "Portable computer of Konstantin Andrusenko", "additional_parameters" : {"Vendor" : "Apple", "model" : "MacBook Pro ", "memory" : 8192, "CPU" : "Intel Core i5"}}
+        result = {u'res_type': u'computer', u'description': u'Portable computer of Konstantin Andrusenko', u'additional_parameters': {u'model': u'MacBook Pro ', u'Vendor': u'Apple', u'CPU': u'Intel Core i5', u'memory': 8192}, u'owner': u'KST', u'_id': '5010319237adc71128000001', u'external_system': u'', u'res_status': u'standby'}
         self.assertEqual(api_result, result)
 
         connection.close()

@@ -320,7 +320,7 @@ class BaseEntity:
         *args - you can put parameters dict as no-named parameter
         **kwargs - key-value attributes
         '''
-        self._base_attributes = ['specification_name', 'additional_parameters',
+        self._base_attributes = ['_id', 'specification_name', 'additional_parameters',
                                     'description', 'create_date', 'mod_date'] #should be extended in inherited class
         if args:
             if len(args) != 1:
@@ -355,7 +355,7 @@ class BaseEntity:
         help_s = 'get_attribute(attr_name, default_value=None)\n'
         help_s += 'set_attribute(attr_name, value)\n'
 
-        parameters = self.params_dict.keys() + selfadditional_parameters.keys()
+        parameters = self.params_dict.keys() + self.additional_parameters.keys()
         for param_name in parameters:
             help_s += 'get_%s(default_value=NOT_FOUND)\n'% param_name
             help_s += 'set_%s(value)\n'% param_name
@@ -364,11 +364,11 @@ class BaseEntity:
 
     def __get_attribute(self, attr_name, default_value=None):
         '''return value of @attr_name attribute of entity'''
-
         if attr_name in self._base_attributes:
             value = self.params_dict.get(attr_name, default_value)
         else:
             value = self.additional_parameters.get(attr_name, default_value)
+
         return value
 
     def __set_attribute(self, attr_name, attr_value):
@@ -464,8 +464,10 @@ class Collection(BaseEntity):
 
         self._base_attributes += ['resources']
 
-        self.set_resources([])
-
+        if self.get_resources():
+            pass
+        else:
+            self.set_resources([])
 
     def append_resource(self, resource):
         '''append resource to collection'''
@@ -484,8 +486,11 @@ class Collection(BaseEntity):
         resources = self.get_resources()
 
         res_id = resource.get__id()
+
         if res_id is NOT_FOUND:
             raise BIValueError('Resource has not _id attribute (not saved in database).')
+        elif res_id in resources:
+            raise BIException('Similar resources are not allowed in collection! resource "%s"',res_id)
 
         resources.append(res_id)
         self.set_resources(resources)
@@ -545,4 +550,3 @@ class Connection(BaseEntity):
 
         self.set_connecting_resource(connecting_id)
         self.set_connected_resource(connected_id)
-

@@ -10,7 +10,6 @@ from pymongo import Connection, errors, objectid
 from common import CommonDatabaseAPI
 from blik.inventory.core.inv_exceptions import *
 
-
 class MongoDatabaseAPI(CommonDatabaseAPI):
     def __init__(self, conn_string, database):
         if not database:
@@ -35,11 +34,11 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
 
     def get_entity(self, ent_type, entity_id):
         self._check_ent_type(ent_type)
-        self.connect()
         collection = self.connection[self.database][ent_type]
         cursor = collection.find_one({"_id" : objectid.ObjectId(str(entity_id))})
-        self.close()
+
         if cursor:
+            cursor["_id"] = str(cursor["_id"])
             return cursor
         else:
             raise BIValueError("Can't find information about record with entity_id %s in %s collection" %(entity_id, ent_type))
@@ -63,6 +62,7 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
                     query["__".join(k[0:-1])] = {"$"+str(k[-1]) : value}
                 else:
                     query[key] = value
+
         return query
 
     def find_entities(self, ent_type, obj_filter = None):
@@ -72,6 +72,7 @@ class MongoDatabaseAPI(CommonDatabaseAPI):
         for item in collection.find(self._get_filter_query(obj_filter)):
             item["_id"] = str(item["_id"])
             entities.append(item)
+
         return entities
 
     def save_entity(self, ent_type, entity_dict):

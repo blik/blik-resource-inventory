@@ -26,7 +26,7 @@ class TestSpecificationManager(unittest.TestCase):
         spec = SpecificationManager()
         self.assertRaises(Exception, spec.check_key, object, key)
 
-    def test_02_restore_spec(self, spec_file = "./tests/simple_spec.yaml", filter = None):
+    def test_02_restore_spec(self, spec_file = "../tests/simple_spec.yaml", filter = None):
         spec = SpecificationManager()
         #   Try restore specifications from not existing file
         self.assertRaises(Exception, spec.restore_spec, "/wrong/path/to/restore/spec.file")

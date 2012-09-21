@@ -78,4 +78,3 @@ class ManagementAPI:
         '''Delete specification of some entity in Inventory from database
         '''
         self.db_conn.delete_entity(CommonDatabaseAPI.ET_SPECIFICATION, spec_id)
-
