@@ -8,8 +8,8 @@ from blik.inventory.backend.common import *
 from pymongo import Connection, objectid
 from blik.inventory.backend.mongo import MongoDatabaseAPI
 
-DB_NAME = 'TEST_RES_API'
-ET_RESOURCE = 'resource'
+DB_NAME = 'Test_BlikRI'
+CONN_STRING = 'localhost:27017'
 
 RESOURCE_LIST =[{"_id" : objectid.ObjectId("5010319237adc71128000000"), "specification_name" : "Switch", "resource_status" : "standby", "owner" : "KST", "external_system" : "", "description" : "Portable computer", 
                    "additional_parameters": {'interfaces': {'idx': 2,'name': 'eth0','mac': '10:10:10:10:10'}, 'board': {'id': [1,2]}}},
@@ -94,8 +94,8 @@ class TestResourceOperationalAPI(unittest.TestCase):
         specs = self.create_spec()
         Resource.setup_specification([specs])
 
-        resource = ResourceOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        resource = ResourceOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
         
         self.check_exception(lambda: resource.createResource('Switch'), TypeError)
         self.check_exception(lambda: resource.createResource('DSLAM', 'New', interfaces={}), BIValueError) #incorrect DSLAM type
@@ -129,8 +129,8 @@ class TestResourceOperationalAPI(unittest.TestCase):
         specs = self.create_spec()
         Resource.setup_specification([specs])
 
-        resource = ResourceOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        resource = ResourceOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
         self.db_conn.connect()
         
         self.check_exception(lambda: resource.updateResource(), TypeError)
@@ -158,8 +158,8 @@ class TestResourceOperationalAPI(unittest.TestCase):
     def test_getResourceInfo(self):
         self.maxDiff = None
         time.sleep(1)
-        resource = ResourceOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        resource = ResourceOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
         
         resource.getResourceInfo('5010319237adc71128000000')
 
@@ -172,8 +172,8 @@ class TestResourceOperationalAPI(unittest.TestCase):
 
     def test_findResources(self):
         time.sleep(1)
-        resource = ResourceOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        resource = ResourceOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
         self.db_conn.connect()
         
         resources = self.db_conn.find_entities('resource', {'resource_status__in': ['standby', 'active']})
@@ -183,8 +183,8 @@ class TestResourceOperationalAPI(unittest.TestCase):
 
     def test_removeResource(self):
         time.sleep(1)
-        resource = ResourceOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        resource = ResourceOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
         
         resource.removeResource('5010319237adc71128000000')
         self.db_conn.connect()

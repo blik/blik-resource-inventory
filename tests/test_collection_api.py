@@ -9,8 +9,8 @@ import time
 import unittest
 from pymongo import objectid
 
-DB_NAME = 'TEST_COLL_API'
-#ET_COLLECTION = 'collection'
+DB_NAME = 'Test_BlikRI'
+CONN_STRING = 'localhost:27017'
 
 RESOURCE_LIST =[{"_id" : objectid.ObjectId("5010319237adc71128000001"), "specification_name" : "Switch", "res_status" : "standby", "owner" : "KST", "external_system" : "", "description" : "Portable computer of Konstantin Andrusenko", "additional_parameters" : {"Vendor" : "Apple", "model" : "MacBook Pro ", "memory" : 8192, "CPU" : "Intel Core i5"}},
                 {"_id" : objectid.ObjectId("5010319237adc71128000002"), "specification_name" : "Switch", "res_status" : "standby", "owner" : "KST", "external_system" : "", "description" : "Portable computer of Konstantin Andrusenko", "additional_parameters" : {"Vendor" : "Apple", "model" : "MacBook Pro ", "memory" : 8192, "CPU" : "Intel Core i5"}},
@@ -100,8 +100,8 @@ class TestCollectionOperationalAPI(unittest.TestCase):
 
     def test_createCollection(self):
         time.sleep(1)
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        collection = CollectionOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
 
         child_param = {'param_name': 'id',
                      'param_type': 'integer',
@@ -128,8 +128,8 @@ class TestCollectionOperationalAPI(unittest.TestCase):
 
     def test_deleteCollection(self):
         time.sleep(1)
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        collection = CollectionOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
 
         collection.deleteCollection('505b0df96998cb6fc9000010')
 
@@ -139,8 +139,8 @@ class TestCollectionOperationalAPI(unittest.TestCase):
 
     def test_updateCollectionInfo(self):
         time.sleep(1)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
+        collection = CollectionOperationalAPI()
 
         collection.updateCollectionInfo('505b0df96998cb6fc9000010', additional_parameters={'test_param_1':200})
 
@@ -156,13 +156,13 @@ class TestCollectionOperationalAPI(unittest.TestCase):
         res_spec = self.create_spec()
         Resource.setup_specification([res_spec])
 
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
 
         spec = CollectionSpecification({'type_name': 'l2vpn_site', 'allowed_types': ['Switch', 'Access']}, params_spec={'param_name': 'test_param', 'param_type': 'integer'})
 
         Collection.setup_specification([spec])
         collection = Collection()
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
+        collection = CollectionOperationalAPI()
         collection.appendResourceToCollection('505b0df96998cb6fc9000010', '5010319237adc71128000001')
         collection.appendResourceToCollection('505b0df96998cb6fc9000010', '5010319237adc71128000002')
             #('Similar resources are not allowed in collection! resource "%s"', ObjectId('5010319237adc71128000002'))
@@ -180,14 +180,14 @@ class TestCollectionOperationalAPI(unittest.TestCase):
         spec = CollectionSpecification({'type_name': 'l2vpn_site', 'allowed_types': ['Access', 'DSLAM']}, params_spec={})
         Collection.setup_specification([spec])
         collection = Collection()
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
+        collection = CollectionOperationalAPI()
             #Resource with type <Switch> is not allowed for collection <l2vpn_site>
         self.check_exception(lambda: collection.appendResourceToCollection('505b0df96998cb6fc9000010', '5010319237adc71128000001'), BIValueError)
 
     def test_removeResourceFromCollection(self):
         time.sleep(1)
-        collection = CollectionOperationalAPI('localhost', DB_NAME)
-        self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)
+        collection = CollectionOperationalAPI()
+        self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)
 
         collection.removeResourceFromCollection('505b0df96998cb6fc9000011','5010319237adc71128000002')
 

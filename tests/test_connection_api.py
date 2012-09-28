@@ -8,7 +8,8 @@ import time
 import unittest
 from pymongo import objectid
 
-DB_NAME = 'TEST_CONN_API'
+DB_NAME = 'Test_BlikRI'
+CONN_STRING = 'localhost:27017'
 
 CONN_LIST = [{"_id" : objectid.ObjectId("5010319237adc71128000000"), "connecting_resource" : "5010319237adc71128000001", "specification_name" : "L2", "connected_resource" : "5010319237adc71128000002", "additional_parameters" : { "Port_one" : 10, "Port_two" : 30}},
              {"_id" : objectid.ObjectId("5010319237adc71128000005"), "connecting_resource" : "5010319237adc71128000010", "specification_name" : "Test", "connected_resource" : "5010319237adc71128000009", "additional_parameters" : { "Port_one" : 1, "Port_two" : 3}},
@@ -106,7 +107,7 @@ class TestConnectionOperationalAPI(unittest.TestCase):
 
     Connection.setup_specification([spec])
     connection = Connection()
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
 
         #Specification <L4> is not registered!
     self.check_exception(lambda: connection.updateConnection('5010319237adc71128000000', 'L4', '5010319237adc71128000001', '5010319237adc71128000003'), BIException)
@@ -131,7 +132,7 @@ class TestConnectionOperationalAPI(unittest.TestCase):
 
   def test_findConnection(self):
     time.sleep(1)
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
 
     raw_conn = connection.findConnection({'specification_name__in': ['NEW', 'Test']})
     conn_list = []
@@ -154,7 +155,7 @@ class TestConnectionOperationalAPI(unittest.TestCase):
     Connection.setup_specification([spec])
     connection = Connection()
 
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
         #Connection between similar resources is not allowed!
     self.check_exception(lambda: connection.connectResources('L2', '5010319237adc71128000666', '5010319237adc71128000666'), BIException)
         #Can't find information about record with entity_id 5010319237adc71128000100 in resource collection
@@ -167,7 +168,7 @@ class TestConnectionOperationalAPI(unittest.TestCase):
     connection.connectResources('L2', '5010319237adc71128000666', '5010319237adc71128000003', Port_one={'id':9}, Port_two={'id':10})
     connection.connectResources('L2', '5010319237adc71128000666', '5010319237adc71128000002')
 
-    self.db_conn = MongoDatabaseAPI('localhost',DB_NAME)  
+    self.db_conn = MongoDatabaseAPI(CONN_STRING,DB_NAME)  
     self.db_conn.connect()
     find_conn = self.db_conn.find_entities('connection', {'connecting_resource': '5010319237adc71128000666'})
     self.db_conn.close()
@@ -179,10 +180,10 @@ class TestConnectionOperationalAPI(unittest.TestCase):
 
   def test_disconnectResourcesById(self):
     time.sleep(1)
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
 
     connection.disconnectResourcesById('5010319237adc71128000000')
-    self.db_conn = MongoDatabaseAPI('localhost', DB_NAME)
+    self.db_conn = MongoDatabaseAPI(CONN_STRING, DB_NAME)
     self.db_conn.connect()
 
       #Can't find information about record with entity_id 5010319237adc71128000006 in connection collection
@@ -190,11 +191,11 @@ class TestConnectionOperationalAPI(unittest.TestCase):
     self.db_conn.close()
 
   def test_disconnectResources(self):
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
       #disconnect connect with _id = 5010319237adc71128000006
     connection.disconnectResources('L2','5010319237adc71128000001', '5010319237adc71128000002')
 
-    self.db_conn = MongoDatabaseAPI('localhost', DB_NAME)
+    self.db_conn = MongoDatabaseAPI(CONN_STRING, DB_NAME)
     self.db_conn.connect()
       #Can't find information about record with entity_id 5010319237adc71128000006 in connection collection
     self.check_exception(lambda: self.db_conn.get_entity('connection','5010319237adc71128000000'), BIValueError)
@@ -202,7 +203,7 @@ class TestConnectionOperationalAPI(unittest.TestCase):
 
   def test_getLinkedResources(self):
     time.sleep(1)
-    connection = ConnectionOperationalAPI('localhost', DB_NAME)
+    connection = ConnectionOperationalAPI()
 
     raw_conn = connection.getLinkedResources("5010319237adc71128000011", 'NEW', 'connecting_resource')
     conn_list = []

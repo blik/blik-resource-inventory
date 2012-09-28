@@ -34,6 +34,7 @@ class ParameterSpecification:
                                     self.__class__.__name__)
 
             params_dict = args[0]
+
             if not isinstance(params_dict, dict):
                 raise BIValueError('ParameterSpecification expect dictionary as input parameter!')
         else:
@@ -41,7 +42,7 @@ class ParameterSpecification:
 
         params_dict.update(kwargs)
 
-        for item in params_dict:
+        for item in params_dict:    
             if item not in self.ATTRS:
                 raise BIValueError('Attribute <%s> is not expected for %s'%(item, self.__class__.__name__))
 
@@ -216,7 +217,7 @@ class BaseSpecification:
 
         if not self.params_dict.get('params_spec', None):
             raise BIValueError('Parameter specifications is not found for "%s"!'% self.type_name())
-
+        
         for param_spec in self.params_dict['params_spec']:
             ParameterSpecification(param_spec).validate()
 

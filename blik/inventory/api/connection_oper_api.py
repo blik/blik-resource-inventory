@@ -7,7 +7,7 @@ Author: Yaroslav Chernyakov
 """
 
 from blik.inventory.backend.common import  CommonDatabaseAPI
-from blik.inventory.backend.mongo import  MongoDatabaseAPI
+from blik.inventory.utils.ri_spec_manager import  InventoryConfiguration
 from blik.inventory.api.resource_oper_api import ResourceOperationalAPI
 from blik.inventory.core.inv_exceptions import BIException
 from blik.inventory.core.base_entities import *
@@ -15,13 +15,12 @@ from blik.inventory.core.base_entities import *
 BOTH = ['connecting_resource', 'connected_resource']
 CONNECTING = 'connecting_resource'
 CONNECTED = 'connected_resource'
+CONFIG_FILE = "/opt/blik/inventory/conf/blik-ri-conf.yaml"
 
 class ConnectionOperationalAPI():
-    def __init__(self, conn_string, database):
-        self.conn_string = conn_string
-        self.database = database
-
-        self.db_conn = MongoDatabaseAPI(self.conn_string, self.database)
+    def __init__(self):
+        self.conf = InventoryConfiguration()
+        self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
 
     def updateConnection(self, conn_id, conn_type=None, connecting_res_id=None, connected_res_id=None, **add_params ):
         '''Update connection information.
@@ -29,7 +28,7 @@ class ConnectionOperationalAPI():
         '''
 
         self.db_conn.connect()
-        res = ResourceOperationalAPI(self.conn_string, self.database)
+        res = ResourceOperationalAPI()
         raw_connection = self.db_conn.get_entity(CommonDatabaseAPI.ET_CONNECTION, conn_id)
 
         connection = Connection(raw_connection)
@@ -83,7 +82,7 @@ class ConnectionOperationalAPI():
 
         connection = Connection(specification_name=conn_type, connecting_resource=connecting_res_id,  connected_resource=connected_res_id, additional_parameters=add_params)
 
-        res = ResourceOperationalAPI(self.conn_string, self.database)
+        res = ResourceOperationalAPI()
         connecting_res = res.getResourceInfo(connecting_res_id)
         connected_res = res.getResourceInfo(connected_res_id)
 

@@ -1,15 +1,13 @@
 from blik.inventory.backend.common import  CommonDatabaseAPI
-from blik.inventory.backend.mongo import  MongoDatabaseAPI
+from blik.inventory.utils.ri_spec_manager import  InventoryConfiguration
 from blik.inventory.core.base_entities import Resource
 
-ET_RESOURCE = 'resource'
+CONFIG_FILE = "/opt/blik/inventory/conf/blik-ri-conf.yaml"
 
 class ResourceOperationalAPI:
-    def __init__(self, conn_string, database):
-        self.conn_string = conn_string
-        self.database = database
-        
-        self.db_conn = MongoDatabaseAPI(conn_string, database)
+    def __init__(self):
+        self.conf = InventoryConfiguration()
+        self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
 
     def createResource(self, resource_type, status, description=None,
                     external_system=None, location=None, department=None, owner=None, **add_params):
