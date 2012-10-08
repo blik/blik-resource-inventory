@@ -34,7 +34,7 @@ class ParameterSpecification:
                                     self.__class__.__name__)
 
             params_dict = args[0]
-
+            print type(params_dict)
             if not isinstance(params_dict, dict):
                 raise BIValueError('ParameterSpecification expect dictionary as input parameter!')
         else:

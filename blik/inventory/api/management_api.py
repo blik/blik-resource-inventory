@@ -14,7 +14,7 @@ class ManagementAPI:
         self.conf = InventoryConfiguration()
         self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
 
-    def createSpecification(self, spec_name, parent_spec_name, spec_type, **parameters):
+    def createSpecification(self, spec_name, parent_spec_name, spec_type, description, **parameters):
         '''Create specification of some entity in Inventory and save it into database
         @return created specification object
         '''
@@ -24,14 +24,17 @@ class ManagementAPI:
             raise BIException('Specification type <%s> is not supported!'% spec_type)
 
         if spec_type == 'resource':
+            print "res"
             spec = {'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'params_spec': parameters['params_spec']}
         elif spec_type == 'connection':
             spec = {'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'connecting_type': parameters['connecting_type'],
                     'connected_type': parameters['connected_type'],
                     'params_spec': parameters['params_spec']}
@@ -40,12 +43,13 @@ class ManagementAPI:
             spec = {'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'allowed_types': parameters['allowed_types'],
                     'params_spec': parameters['params_spec']}
 
         if spec_class is None:
             raise BIException('Specification type <%s> is not supported!'% spec_type)
-
+       
         spec_obj = spec_class(spec)
         spec_obj.validate()
 
