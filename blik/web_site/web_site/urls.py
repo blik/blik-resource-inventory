@@ -7,9 +7,9 @@ view = SetViews()
 
 urlpatterns = patterns('',
     (r'^$',view.resource),
-    (r'^create_spec_res/$', view.create),
+    (r'^specification_res/$', view.create),
     (r'^search_spec_res/$', view.search),
     (r'^modal_spec_res/$', view.modal),
-    (r'^edit_spec_res/$', view.edit),
+    #(r'^edit_spec_res/$', view.edit),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', { 'document_root' : settings.MEDIA_ROOT }),
 )

@@ -2,6 +2,17 @@ $(document).ready(function() {
     $('#addParams').dataTable();
 } );
 
+function getSpecForCreate(){
+    //var spec = {}
+    //var packed = $("#spec_search").val();
+        //spec={spec_id: spec_id}
+
+        packed = escape($("#spec_search").val())
+
+        window.location = "/specification_res/?"+packed
+
+}
+
 function addParamToTable() {
     if(_checkError() == true){
         //check checked radio
@@ -29,17 +40,18 @@ function addParamToTable() {
 }
 
 function delParamRow(index) {
-    var oTable = document.getElementById('addParams');
     jConfirm('<strong>Do you want delete parameter?</strong>', 'Confirmation Dialog', function(r) {
         if (r == true){
-            oTable.deleteRow(index);
-            //disable button 'Save' if not rows in table 
-            if ($('#addParams').dataTable().fnGetData(0) == null){
-                $("#save_spec").attr("disabled", "disabled");
-            }
-            else{
-                $("#save_spec").removeAttr("disabled");
-            }
+            var oTable = document.getElementById('addParams');
+            var rowLength = oTable.rows.length;
+                oTable.deleteRow(index);
+                //disable button 'Save' if not rows in table 
+                if (rowLength == 1){
+                    $("#save_spec").attr("disabled", "disabled");
+                }
+                else{
+                    $("#save_spec").removeAttr("disabled");
+                }
        }
     })
 }
@@ -76,7 +88,7 @@ function editParamRow(index){
 function updateParam(){
     if (_checkError() == true) {
         var oTable = $("#addParams").dataTable();
-   
+        
         var index = $("#index").val();
         var oTable = document.getElementById('addParams');
         var oCells = oTable.rows.item(index).cells;
@@ -182,12 +194,12 @@ function delSpecRow(del_id){
 }
 
 function getSpecForEdit(spec_id){
-    var spec = {}
+    //var spec = {}
     var packed = "";
-        spec={spec_id: spec_id}
+       // spec={spec_id: spec_id}
         packed = escape(spec_id)
 
-    window.location = "/edit_spec_res/?" + packed;
+    window.location = "/specification_res/?" + packed;
 }
 
 function getSpecForInfo(spec_id){

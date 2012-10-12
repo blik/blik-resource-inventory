@@ -21,15 +21,18 @@ class SetViews():
         return render_to_response()
 
     def create(self,request):
+        spec_id = request.GET.keys()
+        #params for create spec
         spec_name = request.POST.get('spec_name',)
         description = request.POST.get('spec_desc',)
         spec_parent = request.POST.get('parent_spec',)
         raw_param_spec = request.POST.get('param_spec',)
         list_param_spec = []
-
+        print request.POST
+        print request.GET
+       # print spec_name
         if raw_param_spec != None and raw_param_spec != 'null':
             spec = ast.literal_eval(raw_param_spec)
-
             if isinstance(spec, tuple):
                 i=0
                 while i<len(spec):
@@ -38,11 +41,29 @@ class SetViews():
             elif isinstance(spec, dict):
                 list_param_spec.append(spec)
 
-        if spec_name != None:
-            if self.specification.createSpecification(spec_name, spec_parent, 'resource', description, params_spec=list_param_spec) != None:
-                return HttpResponseRedirect('/create_spec_res/')
+        if spec_id != [] and spec_name != None  and request.POST != {}:
+            if self.specification.updateSpecification(spec_id[0], spec_name, spec_parent, 'resource', description, params_spec=list_param_spec) != None:
 
-        return render_to_response('create_spec_res.html')
+                return HttpResponseRedirect('/search_spec_res/')
+            #else
+            #    return render_to_response('specification_res.html')
+
+        elif request.GET != {} and request.POST == {}:
+            raw_spec = self.specification.getSpecification(spec_id[0]).to_dict()
+
+            return render_to_response('specification_res.html', {'spec_name': raw_spec['type_name'],
+                                                         'spec_desc': raw_spec['description'],
+                                                         'parent_spec': raw_spec['parent_type_name'],
+                                                         'spec_param_list': raw_spec['params_spec'],
+                                                           })
+
+        elif request.GET == {} and request.POST != {}:
+            if self.specification.createSpecification(spec_name, spec_parent, 'resource', description, params_spec=list_param_spec) != None:
+
+                return HttpResponseRedirect('/search_spec_res/')
+
+        else:
+            return render_to_response('specification_res.html')
 
     def search(self,request):
         self.spec_name = request.GET.get('s',)
@@ -67,41 +88,6 @@ class SetViews():
     def modal(self,request):
 
         return render_to_response('modal_spec_res.html')
-
-
-    def edit(self,request):
-        spec_id = request.GET.keys()
-
-        spec_name = request.POST.get('spec_name',)
-        description = request.POST.get('spec_desc',)
-        spec_parent = request.POST.get('parent_spec',)
-        raw_param_spec = request.POST.get('param_spec',)
-        list_param_spec = []
-
-        if raw_param_spec != None and raw_param_spec != 'null':
-            spec = ast.literal_eval(raw_param_spec)
-
-            if isinstance(spec, tuple):
-                i=0
-                while i<len(spec):
-                    list_param_spec.append(spec[i])
-                    i += 1
-            elif isinstance(spec, dict):
-                list_param_spec.append(spec)
-
-
-        if spec_name != None: 
-            if self.specification.updateSpecification(spec_id[0], spec_name, spec_parent, 'resource', description, params_spec=list_param_spec) != None:
-                return HttpResponseRedirect('/search_spec_res/')
-
-
-
-        raw_spec = self.specification.getSpecification(spec_id[0]).to_dict()
-        return render_to_response('edit_spec_res.html', {'spec_name': raw_spec['type_name'],
-                                                         'spec_desc': raw_spec['description'],
-                                                         'parent_spec': raw_spec['parent_type_name'],
-                                                         'spec_param_list': raw_spec['params_spec'],
-                                                           })
 
     def _delete_item(self,item_id):
         self.specification.deleteSpecification(item_id)

@@ -16,7 +16,17 @@
   {% endif %}-->
   </div>
 </form>
+<!--  <script>
+    var query = window.location.search;
+      if (query.substring(0, 1) == '?') {
+        query = query.substring(1);
+      }  
+    var data = unescape(query);
+      $("#name_spec").val(data)
+  </script>-->
+<script>$("#name_spec").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');</script>
 <div class="span4"><br><br><br><br>
+<input id="index" type="hidden">
 <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification();"><i class="icon-plus"></i> Save </button>
 </div>
 
@@ -49,7 +59,9 @@
       <input id="no"  type="radio" name="optionsRadios" value="No" checked>No
     </div><br><br><br>
   </form><br><br><br>
+  <p id="field_err"></p>
   <div id="params_spec">
+    <button id="update_spec" class="btn btn-primary button-right" disabled="true" onClick="updateParam();"><i class="icon-plus icon-white"></i> Update </button>
     <button id="add_spec" class="btn btn-primary button-right" onClick="addParamToTable();"><i class="icon-plus icon-white"></i> Add </button>
   </div><br>
 {% endblock %}
@@ -70,9 +82,22 @@
   </tr>
 </thead>
 <tbody>
-
-  <!--generate body by BT-addRow.js-->
-
+    {% for name in spec_param_list %}
+  <tr>
+    <td>{{ name.param_name }}</td>
+    <td>{{ name.param_type }}</td>
+    <td>{{ name.description }}</td>
+    <td>{{ name.possible_values }}</td>
+    <td>{{ name.default_value }}</td>
+    <td>{{ name.mandatory }}</td>
+    <td><center>
+      <button id="delete_row" class="btn btn-mini btn-danger" onclick="delParamRow(this.parentNode.parentNode.parentNode.rowIndex)"><i class="icon-remove" title="Delete parameter specification"></i></button>
+      <a id="edit_row" class="btn btn-mini btn-warning" onClick="editParamRow(this.parentNode.parentNode.parentNode.rowIndex);"><i class="icon-edit" title="Edit parameter"></i></a>
+      <button id="spec_edit_child" class="btn btn-mini btn-success" onClick=""><i class="icon-plus-sign" title="Modify children parameter"></i></button>
+    </center>
+    </td>
+  </tr>
+  {% endfor %}
 </tbody>
 </table>
 </div>
