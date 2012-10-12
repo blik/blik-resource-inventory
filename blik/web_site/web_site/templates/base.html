@@ -6,8 +6,6 @@
     <link href="{{ MEDIA_URL }}/media/css/bootstrap.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/bootstrap-table.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/jquery.alerts.css" rel="stylesheet">
-    <link href="{{ MEDIA_URL }}/media/css/prettify.css" rel="stylesheet">
-    <!--<link href="{{ MEDIA_URL }}/media/css/BT-highlight-row.css" rel="stylesheet">-->
     <style type="text/css">
       body {
         padding-top: 70px;
@@ -27,12 +25,16 @@
       }
       .button-right {float:right;}
       .span4{
-        backgroundw: #f8ffe8;
+        backgroundd: #E2E4FF;
       }
       .error { visibility2:"hidden" }
+
     </style>
     <link href="{{ MEDIA_URL }}/media/css/bootstrap-responsive.css" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ MEDIA_URL }}/media/img/icon.jpg">
+    <link rel="shortcut icon" href="{{ MEDIA_URL }}/media/img/blink.png">
+    <script src="{{ MEDIA_URL }}/media/js/jquery.js"></script>
+
+  </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -49,10 +51,10 @@
         <div class="span2" ><p>                 
           <div class="well sidebar-nav" ><p>
             <ul class="nav nav-list">
-              <li><button class="btn btn-large btn-block btn-primary" type="button" href="/test/">Resources</button></li><p>
+              <li><button class="btn btn-large btn-block btn-primary" type="button">Resources</button></li><p>
               <li><button class="btn btn-large btn-block btn-primary" type="button">Collection</button></li><p>
               <li><button class="btn btn-large btn-block btn-primary" type="button">Connection</button></li><p>
-              <p>-------------------------------------------------</p>
+              <hr width="100%">
               <li><div class="btn-group">
                     <button class="btn btn-large btn-primary"> Specification </button>
                     <button class="btn btn-large dropdown-toggle btn-primary" data-toggle="dropdown">
@@ -84,7 +86,7 @@
 
     <!-- javascript
     ================================================== -->
-    <script src="{{ MEDIA_URL }}/media/js/jquery.js"></script>
+    
     <script src="{{ MEDIA_URL }}/media/js/jquery.dataTables.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-dropdown.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-table.js"></script>
@@ -92,16 +94,15 @@
     <script src="{{ MEDIA_URL }}/media/js/jquery.jeditable.js"></script> 
     <script src="{{ MEDIA_URL }}/media/js/jquery.alerts.js"></script> 
     <script src="{{ MEDIA_URL }}/media/js/jquery.json-2.3.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script>
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script> 
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-transition.js"></script>
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-tab.js"></script>
 
-    <script src="{{ MEDIA_URL }}/media/js/BT-delRow.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/BT-addRow.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/BT-saveSpec.js"></script>
-    <!--<script src="{{ MEDIA_URL }}/media/js/BT-select-row.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/new-del.js"></script>
-
-
+    <script src="{{ MEDIA_URL }}/media/js/BT-specification.js"></script>
     
+    
+    <!--
+
 
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-transition.js"></script>
     
@@ -114,6 +115,8 @@
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-button.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-collapse.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-carousel.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/bootstrap-typeahead.js"></script>-->
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-typeahead.js"></script>
+    
+   -->
   </body>
 </html>

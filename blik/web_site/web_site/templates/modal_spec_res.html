@@ -1,8 +1,44 @@
-{% for item in spec_list %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Information about specification</title>
+</head>
+<body>
+<form>
+	<div class="span6">
+    <label>Specification name</label>
+    <input id="name_spec" name="name" type="text" value="{{ spec_name }}" disabled>
+    <label>Parent specification</label>
+    <input id="parent_spec" name="parent" type="text" value="{{ spec_desc }}" disabled>
+  </div>
+  <div >
+   	<label>Description specification</label>
+    <input id="spec_desc" name="parent" type="text" value="{{ parent_spec }}" disabled>
+  </div>
+</form>
+<hr width="100%">
+            <div class="tabbable tabs-left">
+            	{% for item in spec_param_list %}
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#A" data-toggle="tab"> {{ item.param_name}} </a></li>
+              </ul>
 
-<p>{{ name.type_name }}</p>
-<p>{{ name.parent_type_name }}</p>
-<p>{{ name.description }}</p>
-<p>{{ name.params_spec }}</p>
-
-{% endfor %}
+              <div class="tab-content">
+                <div class="tab-pane active" id="A">
+      						<label>Parameter type</label>
+      						<input id="param_type" type="text" value="{{ item.param_type }}" disabled>
+      						<label>Parameter description</label>
+      						<input id="param_desc" type="text" value="{{ item.description }}" disabled>    
+      						<label>List of possible values</label>
+      						<input id="pos_value" type="text" value="{{ item.possible_values }}" disabled>
+      						<label>Default values</label>
+      						<input id="def_value" type="text" value="{{ item.default_value }}" disabled>
+      						<label>Mandatory</label>
+      						<input id="mandatory" type="text" value="{{ item.mandatory }}" disabled>   
+                </div>
+              </div>
+              {% endfor %}
+            </div> <!-- /tabbable -->
+</body>
+</html>

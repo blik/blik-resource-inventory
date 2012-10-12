@@ -47,6 +47,158 @@ table.dataTable th:active {
 	outline: none;
 }
 
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Misc
+ */
+.dataTables_scroll {
+	clear: both;
+}
+
+.dataTables_scrollBody {
+	*margin-top: -1px;
+	-webkit-overflow-scrolling: touch;
+}
+
+.top, .bottom {
+	padding: 15px;
+	background-color: #F5F5F5;
+	border: 1px solid #CCCCCC;
+}
+
+.top .dataTables_info {
+	float: none;
+}
+
+.clear {
+	clear: both;
+}
+
+.dataTables_empty {
+	text-align: center;
+}
+
+tfoot input {
+	margin: 0.5em 0;
+	width: 100%;
+	color: #444;
+}
+
+tfoot input.search_init {
+	color: #999;
+}
+
+td.group {
+	background-color: #d1cfd0;
+	border-bottom: 2px solid #A19B9E;
+	border-top: 2px solid #A19B9E;
+}
+
+td.details {
+	background-color: #d1cfd0;
+	border: 2px solid #A19B9E;
+}
+
+
+.example_alt_pagination div.dataTables_info {
+	width: 40%;
+}
+
+.paging_full_numbers {
+	width: 400px;
+	height: 22px;
+	line-height: 22px;
+}
+
+.paging_full_numbers a:active {
+	outline: none
+}
+
+.paging_full_numbers a:hover {
+	text-decoration: none;
+}
+
+.paging_full_numbers a.paginate_button,
+ 	.paging_full_numbers a.paginate_active {
+	border: 1px solid #aaa;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	padding: 2px 5px;
+	margin: 0 3px;
+	cursor: pointer;
+	*cursor: hand;
+	color: #333 !important;
+}
+
+.paging_full_numbers a.paginate_button {
+	background-color: #ddd;
+}
+
+.paging_full_numbers a.paginate_button:hover {
+	background-color: #ccc;
+	text-decoration: none !important;
+}
+
+.paging_full_numbers a.paginate_active {
+	background-color: #99B3FF;
+}
+
+table.display tr.even.row_selected td {
+	background-color: #B0BED9;
+}
+
+table.display tr.odd.row_selected td {
+	background-color: #B0BED9;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * DataTables row classes
+ */
+table.display tr.odd.gradeA {
+	background-color: #ddffdd;
+}
+
+table.display tr.even.gradeA {
+	background-color: #eeffee;
+}
+
+table.display tr.odd.gradeC {
+	background-color: #ddddff;
+}
+
+table.display tr.even.gradeC {
+	background-color: #eeeeff;
+}
+
+table.display tr.odd.gradeX {
+	background-color: #ffdddd;
+}
+
+table.display tr.even.gradeX {
+	background-color: #ffeeee;
+}
+
+table.display tr.odd.gradeU {
+	background-color: #ddd;
+}
+
+table.display tr.even.gradeU {
+	background-color: #eee;
+}
+
+td {
+	width: 100px;
+}
+
+tr.odd {
+	background-color: #eeeeee;
+}
+
+tr.even {
+	background-color: #eeeeee;
+}
+
 /* Scrolling */
 div.dataTables_scrollHead table {
 	margin-bottom: 0 !important;
@@ -73,9 +225,6 @@ div.dataTables_scrollBody tbody tr:first-child td {
 div.dataTables_scrollFoot table {
 	border-top: none;
 }
-
-
-
 
 /*
  * TableTools styles
@@ -139,8 +288,6 @@ div.DTTT_print_info p {
 	line-height: 20px;
 }
 
-
-
 /*
  * FixedColumns styles
  */
@@ -175,4 +322,83 @@ div.DTFC_LeftBodyWrapper tbody tr:first-child td {
 
 div.DTFC_LeftFootWrapper table {
 	border-top: none;
+}
+
+/*
+ * Row highlighting example
+ */
+.ex_highlight #addParams tbody tr.even:hover, #addParams tbody tr.even td.highlighted {
+	background-color: #ECFFB3;
+}
+
+.ex_highlight #addParams tbody tr.odd:hover, #addParams tbody tr.odd td.highlighted {
+	background-color: #E6FF99;
+}
+
+.ex_highlight_row #addParams tr.even:hover {
+	background-color: #ECFFB3;
+}
+
+.ex_highlight_row #addParams tr.even:hover td.sorting_1 {
+	background-color: #DDFF75;
+}
+
+.ex_highlight_row #addParams tr.even:hover td.sorting_2 {
+	background-color: #E7FF9E;
+}
+
+.ex_highlight_row #addParams tr.even:hover td.sorting_3 {
+	background-color: #E2FF89;
+}
+
+.ex_highlight_row #addParams tr.odd:hover {
+	background-color: #E6FF99;
+}
+
+.ex_highlight_row #addParams tr.odd:hover td.sorting_1 {
+	background-color: #D6FF5C;
+}
+
+.ex_highlight_row #addParams tr.odd:hover td.sorting_2 {
+	background-color: #E0FF84;
+}
+
+.ex_highlight_row #addParams tr.odd:hover td.sorting_3 {
+	background-color: #DBFF70;
+}
+
+/*
+ * KeyTable
+ */
+table.KeyTable td {
+	border: 3px solid transparent;
+	background-color: 
+}
+
+table.KeyTable td.focus {
+	border: 3px solid #3366FF;
+}
+
+table.display tr.gradeA {
+	background-color: #eeffee;
+}
+
+table.display tr.gradeC {
+	background-color: #ddddff;
+}
+
+table.display tr.gradeX {
+	background-color: #ffdddd;
+}
+
+table.display tr.gradeU {
+	background-color: #ddd;
+}
+
+div.box {
+	height: 100px;
+	padding: 10px;
+	overflow: auto;
+	border: 1px solid #8080FF;
+	background-color: #E5E5FF;
 }

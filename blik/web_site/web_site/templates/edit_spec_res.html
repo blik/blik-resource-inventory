@@ -1,21 +1,26 @@
 {% extends "base.html" %}
 {% block form %}
-<center><legend><h2>Create specification resource form</h2></legend></center>
+
+<center><legend><h2>Edit specification resource form</h2></legend></center>
+
 <form id="form_spec" class="form-inline"> 
   <div class="span4">
-    <label>Specification name <span style="color: red">*</span></label>
-    <input id="name_spec" name="name" type="text" class="input">
-    <label>Parent specification</label>
-    <input id="parent_spec" name="parent" type="text" class="input">
-  </div>
-  <div class="span4">
-    <label>Description specification</label>
-    <input id="spec_desc" name="parent" type="text" class="input">
+  <label>Specification name <span style="color: red">*</span></label>
+  <input id="name_spec" name="name" type="text" class="input">
+  <label>Parent specification</label>
+  <input id="spec_desc" name="parent" type="text" class="input">
+</div>
+<div class="span4">
+  <label>Description specification</label>
+  <input id="parent_spec" name="parent" type="text" class="input">
   <!--{% if error %}
     <div id="alert_2" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">×</button><strong>Successfully!</strong> Specification is created.</div>
   {% endif %}-->
-  </div>
+</div>
+  <input id="index" type="hidden">
 </form>
+<script>$("#name_spec").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');</script>
+
 <div class="span4"><br><br><br><br>
 <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification();"><i class="icon-plus"></i> Save </button>
 </div>
@@ -49,14 +54,15 @@
       <input id="no"  type="radio" name="optionsRadios" value="No" checked>No
     </div><br><br><br>
   </form><br><br><br>
-  <div id="params_spec">
+    <p id="field_err"></p>
+    <button id="update_spec" class="btn btn-primary button-right" disabled="true" onClick="updateParam();"><i class="icon-plus icon-white"></i> Update </button>
     <button id="add_spec" class="btn btn-primary button-right" onClick="addParamToTable();"><i class="icon-plus icon-white"></i> Add </button>
-  </div><br>
+  <br>
 {% endblock %}
 
 {% block table%}
 <div id="tab_params_spec" class="hero-unit">
-<table align='center' id="addParams" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" class="display" >
+<table id="addParams" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" class="display dataTable" >
 <caption><h3>Created parameter specification</h3></caption>
 <thead>
   <tr>
@@ -70,9 +76,22 @@
   </tr>
 </thead>
 <tbody>
-
-  <!--generate body by BT-addRow.js-->
-
+    {% for name in spec_param_list %}
+  <tr>
+    <td>{{ name.param_name }}</td>
+    <td>{{ name.param_type }}</td>
+    <td>{{ name.description }}</td>
+    <td>{{ name.possible_values }}</td>
+    <td>{{ name.default_value }}</td>
+    <td>{{ name.mandatory }}</td>
+    <td><center>
+      <button id="delete_row" class="btn btn-mini btn-danger" onclick="delParamRow(this.parentNode.parentNode.parentNode.rowIndex)"><i class="icon-remove" title="Delete parameter specification"></i></button>
+      <a id="edit_row" class="btn btn-mini btn-warning" onClick="editParamRow(this.parentNode.parentNode.parentNode.rowIndex);"><i class="icon-edit" title="Edit parameter"></i></a>
+      <button id="spec_edit_child" class="btn btn-mini btn-success" onClick=""><i class="icon-plus-sign" title="Modify children parameter"></i></button>
+    </center>
+    </td>
+  </tr>
+  {% endfor %}
 </tbody>
 </table>
 </div>

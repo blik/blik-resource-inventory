@@ -24,7 +24,6 @@ class ManagementAPI:
             raise BIException('Specification type <%s> is not supported!'% spec_type)
 
         if spec_type == 'resource':
-            print "res"
             spec = {'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
@@ -59,7 +58,7 @@ class ManagementAPI:
 
         return spec_obj
 
-    def updateSpecification(self, spec_id, spec_name, parent_spec_name, spec_type, **parameters):
+    def updateSpecification(self, spec_id, spec_name, parent_spec_name, spec_type, description, **parameters):
         '''Update specification of some entity in Inventory and save it into database
         @return created specification object
         '''
@@ -78,12 +77,14 @@ class ManagementAPI:
                     'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'params_spec': raw_spec['params_spec']}
         elif spec_type == 'connection':
             spec = {'_id': spec_id,
                     'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'connecting_type': parameters['connecting_type'],
                     'connected_type': parameters['connected_type'],                    
                     'params_spec': raw_spec['params_spec']}
@@ -92,6 +93,7 @@ class ManagementAPI:
                     'type_name': spec_name,
                     'parent_type_name': parent_spec_name,
                     'spec_type': spec_type,
+                    'description': description,
                     'allowed_types': parameters['allowed_types'],                   
                     'params_spec': raw_spec['params_spec']}                    
 
@@ -117,7 +119,7 @@ class ManagementAPI:
             raise BIException('Specification type <%s> is not supported!'% raw_spec['spec_type'])
 
         spec_obj = spec_class(raw_spec)
-        spec_obj.validate()
+        #spec_obj.validate()
 
         return spec_obj
 
