@@ -2,19 +2,35 @@ $(document).ready(function() {
     $('#addParams').dataTable();
 } );
 
-function getSpecForCreate(){
-    //var spec = {}
-    //var packed = $("#spec_search").val();
-        //spec={spec_id: spec_id}
+function search(spec_type){
+    if ($("#spec_search").val() != ''){
+    var form = document.createElement("form"); 
+        form.setAttribute("method", "GET");
+       // alert($("#spec_type").val())
+            var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", "spec_type");
+                hiddenField.setAttribute("value", spec_type);
+            var hiddenField1 = document.createElement("input");
+                hiddenField1.setAttribute("type", "hidden");
+                hiddenField1.setAttribute("name", "s");
+                hiddenField1.setAttribute("value", $("#spec_search").val());                
 
-        packed = escape($("#spec_search").val())
+            form.appendChild(hiddenField);
+            form.appendChild(hiddenField1);
+            form.submit();
+    }
+    else
+        $('#search_err').append('<div id="alert_1" class="span7 alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button><strong>Error!</strong> Please, input the search data!</div>');
+}
 
-        window.location = "/specification_res/?"+packed
-
+////////////TODO//////////////////
+function getSpecForCreate(spec_name){
+    window.location = "/specification_res/?" + escape(spec_name);
 }
 
 function addParamToTable() {
-    if(_checkError() == true){
+    if(_checkErrorAdd() == true){
         //check checked radio
         if ($("input[@name=optionsRadios]:checked").attr('id') == 'yes'){
             var mandatory = 'Yes'
@@ -86,7 +102,7 @@ function editParamRow(index){
 }
 
 function updateParam(){
-    if (_checkError() == true) {
+    if (_checkErrorAdd() == true) {
         var oTable = $("#addParams").dataTable();
         
         var index = $("#index").val();
@@ -129,80 +145,81 @@ function updateDefault(){
     }
 }
 
-function saveSpecification(){
+function saveSpecification(spec_type){
     var raw_param_list = {};
     var param_spec_list = [];
 
-    //get data from table and push to list
-    var oTable = document.getElementById('addParams');
-    var rowLength = oTable.rows.length;
-        for (i=1; i<rowLength; i++){
-            var oCells = oTable.rows.item(i).cells;
-                raw_param_list['param_name'] = oCells.item(0).innerHTML;
-                raw_param_list['param_type'] = oCells.item(1).innerHTML;
-                raw_param_list['description'] = oCells.item(2).innerHTML;
-                raw_param_list['possible_values'] = oCells.item(3).innerHTML;
-                raw_param_list['default_value'] = oCells.item(4).innerHTML;
-                raw_param_list['mandatory'] = oCells.item(5).innerHTML;
+    if (_checkRequiredSave() == true) {
+        //get data from table and push to json list
+        var oTable = document.getElementById('addParams');
+        var rowLength = oTable.rows.length;
+            for (i=1; i<rowLength; i++){
+                var oCells = oTable.rows.item(i).cells;
+                    raw_param_list['param_name'] = oCells.item(0).innerHTML;
+                    raw_param_list['param_type'] = oCells.item(1).innerHTML;
+                    raw_param_list['description'] = oCells.item(2).innerHTML;
+                    raw_param_list['possible_values'] = oCells.item(3).innerHTML;
+                    raw_param_list['default_value'] = oCells.item(4).innerHTML;
+                    raw_param_list['mandatory'] = oCells.item(5).innerHTML;
 
-            var encoded_param_list = $.toJSON(raw_param_list);
-                param_spec_list.push(encoded_param_list);
-        }
+                var encoded_param_list = $.toJSON(raw_param_list);
+                    param_spec_list.push(encoded_param_list);
+            }
+        //get data from form
+        var data_list = []
+            data_list.push($('#spec_name').val());
+            data_list.push(spec_type)
+            data_list.push($('#parent_spec').val());
+            data_list.push($('#spec_desc').val());
+            data_list.push($('#connion_type').val());
+            data_list.push($('#conned_type').val());
+            data_list.push($('#allowed_types').val());
+            data_list.push(param_spec_list);
 
-    var spec_name  = $('#name_spec').val();
-    var spec_desc = $('#spec_desc').val();
-    var parent_spec = $('#parent_spec').val();
-    var data_list = []
+        var params = ['spec_name', 'spec_type', 'parent_spec', 'spec_desc', 'connion_type', 'conned_type', 'allowed_types', 'param_spec'];
+        //create post form
+        var form = document.createElement("form"); 
+            form.setAttribute("method", "post");
 
-        data_list.push(spec_name);
-        data_list.push(spec_desc);
-        data_list.push(parent_spec);
-        data_list.push(param_spec_list);
+            for (i=0; i<=7; i++){
+                var hiddenField = 'hiddenField' + i.toString()
+                var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", params[i]);
+                    hiddenField.setAttribute("value", data_list[i]);
 
-    var params = ['spec_name', 'parent_spec', 'spec_desc', 'param_spec'];
-    //create post form
-    var form = document.createElement("form"); 
-        form.setAttribute("method", "post");
-
-        for (i=0; i<=3; i++){
-            var hiddenField = 'hiddenField' + i.toString()
-            var hiddenField = document.createElement("input");
-                hiddenField.setAttribute("type", "hidden");
-                hiddenField.setAttribute("name", params[i]);
-                hiddenField.setAttribute("value", data_list[i]);
-
-            form.appendChild(hiddenField);
-        }
-    form.submit();
+                form.appendChild(hiddenField);
+            }
+        form.submit();
+    }
 }
 
 function delSpecRow(del_id){
     jConfirm('<strong>Do you want delete specification?</strong>', 'Confirmation Dialog', function(r) {
         if (r == true){
             var form = document.createElement("form");
-                form.setAttribute("method", "post");
-
+                form.setAttribute("method", "POST");
             var hiddenField = document.createElement("input");
                 hiddenField.setAttribute("type", "hidden");
                 hiddenField.setAttribute("name", "del_id");
                 hiddenField.setAttribute("value", del_id);
-
             form.appendChild(hiddenField);
             form.submit();
         }
     });
 }
 
-function getSpecForEdit(spec_id){
-    //var spec = {}
-    var packed = "";
-       // spec={spec_id: spec_id}
-        packed = escape(spec_id)
-
-    window.location = "/specification_res/?" + packed;
+function getSpecForEdit(spec_id, spec_type){
+    if (spec_type == 'resource')
+        window.location = "/specification_res/?spec_id=" + escape(spec_id);
+    else if (spec_type == 'connection')
+        window.location = "/specification_conn/?spec_id=" + escape(spec_id);
+    else if (spec_type == 'collection')
+        window.location = "/specification_coll/?spec_id=" + escape(spec_id);
 }
 
 function getSpecForInfo(spec_id){
+    //alert(spec_id)
     form = document.createElement("form"); 
      form.setAttribute("method", "GET");
 
@@ -210,8 +227,9 @@ function getSpecForInfo(spec_id){
                 hf.setAttribute("type", "hidden");
                 hf.setAttribute("name", 'id_spec');
                 hf.setAttribute("value", spec_id);
-            form.appendChild(hiddenField);
-            form.submit();
+            form.appendChild(hf);
+            //form.submit();
+            
     //window.location = "/modal_spec_res/?" + packed;
     //$('#infoModal').modal('show')
 }
@@ -226,7 +244,23 @@ function _clear_form_elements() {
     $("#param_type").val('dict');
 }
 
-function _checkError(){
+function _checkRequiredSave() {
+    var err = 0;
+    $("#form_spec").find('.required').each(function() {
+        if ($(this).val() == ''){
+            if (document.getElementById("alert_2") == null){
+                $('#field_err_2').append('<div id="alert_2" class="span6 alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button><strong>Error!</strong> Please, fill the required field.</div>');  
+            }
+            err++
+        }           
+    });
+    if (err == 0)
+        return true
+    else
+        return false
+}
+
+function _checkErrorAdd(){
     if ($('#name_spec').val() != '' && $('#param_name').val() != ''){
         $('#alert_2').remove();
 
@@ -257,10 +291,8 @@ function _checkArray(arr1,arr2){
         }
     }
 
-    if (on != arr2.length){
+    if (on != arr2.length)
         return false
-    }
-    else{
+    else
         return true
-    }
 }

@@ -1,34 +1,25 @@
 {% extends "base.html" %}
 {% block form %}
-<center><legend><h2>Create specification resource form</h2></legend></center>
-<form id="form_spec" class="form-inline"> 
+<center><legend><h2>Create specification collection form</h2></legend></center>
+<form id="form_spec" class="form-inline">
   <div class="span4">
     <label>Specification name <span style="color: red">*</span></label>
-    <input id="spec_name" name="name" type="text" class="input">
-    <label>Parent specification</label>
-    <input id="parent_spec" name="parent" type="text" class="input">
+    <input id="spec_name" name="name" type="text" class="input required">
+    <label>Allowed types<span style="color: red">*</span></label>
+    <input id="allowed_types" type="text" class="input required">
   </div>
   <div class="span4">
     <label>Description specification</label>
     <input id="spec_desc" name="parent" type="text" class="input">
-  <!--{% if error %}
-    <div id="alert_2" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">×</button><strong>Successfully!</strong> Specification is created.</div>
-  {% endif %}-->
+    <label>Parent specification</label>
+    <input id="parent_spec" name="parent" type="text" class="input">
   </div>
-</form>
-
-<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');</script>
-<!--<script>
-    var query = window.location.search;
-      if (query.substring(0, 1) == '?') {
-        query = query.substring(1);
-      }  
-    var data = unescape(query);
-      $("#spec_name").val(data)
-  </script>-->
-<div class="span4"><br><br><br><br>
-<input id="index" type="hidden">
-<button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification('resource');"><i class="icon-plus"></i> Save </button>
+</form><br><br><br><br><br><br>
+<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');  $("#allowed_types").val('{{ allowed_types }}');</script>
+<p id="field_err_2"></p>
+<div>
+  <input id="index" type="hidden">
+  <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification('collection');"><i class="icon-plus"></i> Save </button>
 </div>
 
 <legend><em>Parameter specification</em></legend>
