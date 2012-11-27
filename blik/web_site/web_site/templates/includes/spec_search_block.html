@@ -1,0 +1,15 @@
+  <label>Specification name <span style="color: red">*</span></label>
+  <input id="spec_search" type="text" class="input-medium search-query">
+  <button id="btn_search" class="btn btn-primary" onClick="search('{{ spec_type }}')"><i class="icon-search"></i>Search</button>
+  <a class="btn btn-primary" href="/{{spec_page}}/"><i class="icon-plus-sign"></i>Create</a><p>
+  <p id="search_err"></p>
+  <script>
+    $("#spec_search").val('{{ search_spec_name }}');
+    $("#spec_search").focus();
+    
+    $("#spec_search").keyup(function(event){
+      if(event.keyCode == 13){
+        $("#btn_search").click();
+      }
+    });
+  </script>

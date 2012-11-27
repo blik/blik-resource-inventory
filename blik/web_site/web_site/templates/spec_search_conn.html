@@ -1,13 +1,8 @@
 {% extends "base.html" %}
 
 {% block form %}
-<legend><center><h2>Connect specification form</h2></center></legend>
-  <!--<input id="spec_type" type="hidden"></input>-->
-  <label>Specification name <span style="color: red">*</span></label>
-  <input id="spec_search" type="text" class="input-medium search-query">
-  <button class="btn btn-primary" onClick="search('connection')"><i class="icon-search"></i>Search</button>
-  <a class="btn btn-primary" href="/specification_conn/"><i class="icon-plus-sign"></i>Create</a><p>
-  <p id="search_err"></p>
+<legend><center><h2>Connect specification</h2></center></legend>
+{% include "includes/spec_search_block.html"%}
   <!--<script>$("#spec_type").val('{{ spec_type }}')</script>-->
 
           <div id="infoModal" class="modal hide fade" role="dialog" tabindex="-1" aria-hidden="true" data-remote="/modal_spec_res/">
@@ -23,7 +18,6 @@
             </div>
           </div>
 
-
 {% endblock %}
 
 {% block table %}
@@ -34,7 +28,7 @@
     <tr>
       <th> # </th>
       <th> Specification name </th>
-      <th> Paren specification </th>
+      <th> Parent specification </th>
       <th> Description </th>
       <th> Connecting type </th>
       <th> Connected type </th>
@@ -50,11 +44,8 @@
     <td>{{ name.description }}</td>
     <td>{{ name.connecting_type }}</td>
     <td>{{ name.connected_type }}</td>
-    <td><center>
-        <button id="butt_1" type="submit" name="{{ name.id }}" class="btn btn-mini btn-danger" onClick="delSpecRow(this.name);"><i class="icon-remove" title="Delete specification"></i></button>
-        <a type="submit" name="{{ name.id }}" class="btn btn-mini btn-warning" onClick="getSpecForEdit(this.name, 'connection');" ><i class="icon-edit" title="Modify specification"></i></a>
-        <a  data-toggle="modal" name="{{ name.id }}" data-target="#infoModal" class="btn btn-mini btn-success" onClick="getSpecForInfo(this.name);"><i class="icon-info-sign" title="Information about specification"></i></a>
-        <center>
+    <td>
+      {% include "includes/spec_search_btn.html"%}
     </td>
   </tr> 
     {% endfor %}

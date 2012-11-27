@@ -46,9 +46,6 @@ class ManagementAPI:
                     'allowed_types': parameters['allowed_types'],
                     'params_spec': parameters['params_spec']}
 
-        if spec_class is None:
-            raise BIException('Specification type <%s> is not supported!'% spec_type)
-       
         spec_obj = spec_class(spec)
         spec_obj.validate()
 

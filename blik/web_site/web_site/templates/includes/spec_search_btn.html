@@ -1,0 +1,5 @@
+<center>
+  <button id="butt_1" type="submit" name="{{ name.id }}" class="btn btn-mini btn-danger" onClick="delSpecRow(this.name);"><i class="icon-remove" title="Delete specification"></i></button>
+  <a type="submit" name="{{ name.id }}" class="btn btn-mini btn-warning" onClick="getSpecForEdit(this.name, '{{ name.spec_type }}');" ><i class="icon-edit" title="Modify specification"></i></a>
+  <a  data-toggle="modal" name="{{ name.id }}" data-target="#infoModal" class="btn btn-mini btn-success" onClick="getSpecForInfo(this.name);"><i class="icon-info-sign" title="Information about specification"></i></a>
+<center>

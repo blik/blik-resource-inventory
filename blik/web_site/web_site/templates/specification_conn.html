@@ -1,12 +1,22 @@
 {% extends "base.html" %}
 {% block form %}
-<center><legend><h2>Create specification connect form</h2></legend></center>
+<center><legend><h2>Connection specification</h2></legend></center>
 <form id="form_spec" class="form-inline">
   <div class="span4">
     <label>Specification name <span style="color: red">*</span></label>
     <input id="spec_name" name="name" type="text" class="input required">
-    <label>Description specification</label>
-    <input id="spec_desc" name="parent" type="text" class="input">
+    <input id="spec_id" type="hidden" value='{{ spec_id }}'>
+    <div class="control-group">
+      <label class="control-label">Parent specification</label>
+      <div class="controls">
+        <select id="parent_spec" onChange="select_name()">
+          <option id='root_opt'></option>
+          {% for item in items_list %}
+          <option id='{{ item.id }}'> {{ item.type_name }} </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
   </div>
   <div class="span4">
     <label>Connection type<span style="color: red">*</span></label>
@@ -14,108 +24,21 @@
     <label>Connected type<span style="color: red">*</span></label>
     <input id="conned_type" type="text" class="input required">
   </div>
-  <div class="span4">
-    <label>Parent specification</label>
-    <input id="parent_spec" name="parent" type="text" class="input">
+  <div class="span3">
+    <label>Description</label>
+    <input id="spec_desc" name="parent" type="text" class="input">
   </div>
-</form><br><br><br><br><br><br>
-<!--  <script>
-    var query = window.location.search;
-      if (query.substring(0, 1) == '?') {
-        query = query.substring(1);
-      }  
-    var data = unescape(query);
-      $("#name_spec").val(data)
-  </script>-->
-<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');  $("#connion_type").val('{{ connion_type }}');  $("#conned_type").val('{{ conned_type }}');</script>
+</form><br><br><br><br>
+<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}'); $("#connion_type").val('{{ connion_type }}'); $("#conned_type").val('{{ conned_type }}');
+  $("#spec_name").focus()
+  $(".input").keyup(function(event){ $("#save_spec").removeAttr('disabled'); });
+</script>
 <p id="field_err_2"></p>
 <div>
-  <input id="index" type="hidden">
   <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification('connection');"><i class="icon-plus"></i> Save </button>
-</div>
-
-<legend><em>Parameter specification</em></legend>
-  <form id="form_param_spec">
-    <div class="span4">
-      <!--<div id="err_class1">-->
-      <label>Parameter name <span style="color: red">*</span></label>
-      <input id="param_name" type="text">
-      <label>Parameter type</label>
-      <select id="param_type">
-        <option>dict</option>
-        <option>list</option>
-        <option>integer</option>
-        <option>string</option>
-        <option>oid</option>
-      </select> 
-    </div>
-    <div class="span4">
-      <label>Parameter description</label>
-      <input id="param_desc" type="text">    
-      <label>List of possible values</label>
-      <input id="pos_value" type="text" onChange="updateDefault()">
-    </div>
-    <div class="span4">
-      <label>Default values</label>
-      <input id="def_value" type="text" disabled="true">
-      <label>Mandatory</label>   
-      <input id="yes" type="radio" name="optionsRadios" value="Yes">Yes
-      <input id="no"  type="radio" name="optionsRadios" value="No" checked>No
-    </div><br><br><br>
-  </form><br><br><br>
-  <p id="field_err"></p>
-  <div id="params_spec">
-    <button id="update_spec" class="btn btn-primary button-right" disabled="true" onClick="updateParam();"><i class="icon-plus icon-white"></i> Update </button>
-    <button id="add_spec" class="btn btn-primary button-right" onClick="addParamToTable();"><i class="icon-plus icon-white"></i> Add </button>
-  </div><br>
-
-            <div id="infoModal" class="modal hide fade" role="dialog" tabindex="-1" aria-hidden="true" data-remote="/spec_res_child/">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-              <h3 id="myModalLabel">Information about specification</h3>
-            </div>
-            <div class="modal-body">
-              <!-- generate data from remote url-->
-            </div>
-            <div class="modal-footer">
-              <button class="btn" data-dismiss="modal">Close</button>
-            </div>
-          </div>
+</div><br><br>
 {% endblock %}
 
-{% block table%}
-<div id="tab_params_spec" class="hero-unit">
-<table align='center' id="addParams" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" class="display" >
-<caption><h3>Created parameter specification</h3></caption>
-<thead>
-  <tr>
-    <th>Parameter name</th>
-    <th>Parameter type</th>
-    <th>Parameter description</th>
-    <th>List of possible values</th>
-    <th>Default values</th>
-    <th>Mandatory</th>
-    <th>Actions</th>
-  </tr>
-</thead>
-<tbody>
-    {% for name in spec_param_list %}
-  <tr>
-    <td>{{ name.param_name }}</td>
-    <td>{{ name.param_type }}</td>
-    <td>{{ name.description }}</td>
-    <td>{{ name.possible_values }}</td>
-    <td>{{ name.default_value }}</td>
-    <td>{{ name.mandatory }}</td>
-    <td><center>
-      <button id="delete_row" class="btn btn-mini btn-danger" onclick="delParamRow(this.parentNode.parentNode.parentNode.rowIndex)"><i class="icon-remove" title="Delete parameter specification"></i></button>
-      <a id="edit_row" class="btn btn-mini btn-warning" onClick="editParamRow(this.parentNode.parentNode.parentNode.rowIndex);"><i class="icon-edit" title="Edit parameter"></i></a>
-      <button  data-toggle="modal" name="{{ name.id }}" data-target="#infoModal" class="btn btn-mini btn-success" onClick=""><i class="icon-info-sign" title="Edit childrens"></i></button>
-    </center>
-    </td>
-  </tr>
-  {% endfor %}
-</tbody>
-</table>
-</div>
+{% block table %}
+{% include "includes/spec_param.html" %}
 {% endblock %}

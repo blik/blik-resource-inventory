@@ -1,0 +1,92 @@
+<strong><legend><em>Specification parameters</em></legend></strong>
+<div class="row">
+  <div class="span4 well">
+    <div id="treeView"></div>
+  </div>
+  <div id="form_param_spec" class="span8 well">
+    <div class="span5">
+      <label>Parameter name <span style="color: red">*</span></label>
+      <input id="param_name" type="text">
+      <label>Parameter type</label>
+      <select id="param_type">
+        <option>string</option>
+        <option>integer</option>
+        <option>dict</option>
+        <option>list</option>
+        <option>oid</option>
+      </select> 
+      <label>Parameter description</label>
+      <input id="param_desc" type="text">
+    </div>
+    <div class="span5">
+      <label>Possible values</label>
+      <input id="pos_value" type="text" onChange="updateDefault('pos_value', 'def_value')">
+      <label>Default values</label>
+      <input id="def_value" type="text" disabled="true">
+      <label>Mandatory</label>   
+      <div id="callback-toggle-button">
+        <input id='mandatory' type="checkbox">
+      </div>
+    </div>
+    <div class="span11">
+      <button id="update_spec" class="btn btn-primary btn-small button-right" disabled="true" onClick="updateParamSpec();"><i class="icon-refresh"></i> Update </button>
+      <button id="add_spec" class="btn btn-primary btn-small button-right" onClick="addSpecParam();"><i class="icon-plus"></i> Add </button>
+      <label id="field_err"></lable>
+    </div>
+  </div>
+</div>
+<script id="treeview-template" type="text/kendo-ui-template">
+  #: item.text #
+  # if (item.id != 'root_node')  { #
+    <a class='delete-link' href='\#'></a>
+    <a class='add-link' href='\#'></a>
+  # } #
+</script>
+<script>
+  // Delete button behavior
+  $(document).on("click", ".delete-link", function(e) {
+    e.preventDefault();
+    delParamSpec();
+  });
+// Add button behavior
+  $(document).on("click", ".add-link", function(e) {
+    e.preventDefault();
+    addChildNode()
+  });  
+
+  $("#param_name").keyup(function(event){
+    if(event.keyCode == 13){
+      $("#add_spec").click();
+    }
+  });
+</script>
+<style scoped>
+  .add-link {
+    width: 12px;
+    height: 12px;
+    background: transparent url("../media/img/edit.png") no-repeat 50% 50%;
+    overflow: hidden;
+    display: inline-block;
+    font-size: 0;
+    line-height: 0;
+    vertical-align: top;
+    margin: 2px 0 0 3px;
+    -webkit-border-radius: 5px;
+    -mox-border-radius: 5px;
+    border-radius: 5px;              
+  }
+  .delete-link {
+    width: 12px;
+    height: 12px;
+    background: transparent url("../media/img/close.png") no-repeat 50% 50%;
+    overflow: hidden;
+    display: inline-block;
+    font-size: 0;
+    line-height: 0;
+    vertical-align: top;
+    margin: 2px 0 0 3px;
+    -webkit-border-radius: 5px;
+    -mox-border-radius: 5px;
+    border-radius: 5px;
+  }
+</style>

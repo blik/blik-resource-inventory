@@ -55,13 +55,13 @@ class TestConnectionOperationalAPI(unittest.TestCase):
     spec_res_1 = {'params_spec': [{'param_name': 'UPDATE_interfaces', 'param_type': 'dict', 'children_spec': [{'param_name': 'UPDATE_idx', 'param_type': 'integer','mandatory': True}]}, 
                                   {'param_name': 'UPDATE_board', 'param_type': 'integer'}, 
                                   {'param_name': 'new_value', 'param_type': 'string'}],
-                 'type_name': 'Switch', '_id': objectid.ObjectId('5059769d6998cb10e2000111'), 'spec_type': 'resource', 'parent_type_name': 'Parent Switch update'}
+                 'type_name': 'Switch', '_id': objectid.ObjectId('5059769d6998cb10e2000111'), 'spec_type': 'resource', 'parent_type_name': 'Parent Switch update', 'description': 'description'}
 
-    spec_conn_1 = {'type_name': 'L3', 'parent_type_name': 'UPDATED Parent', 'connecting_type': 'Access', 'spec_type': 'connection', '_id': objectid.ObjectId('5059769d6998cb10e2000222'), 'connected_type': 'Switch',
+    spec_conn_1 = {'type_name': 'L3', 'parent_type_name': 'UPDATED Parent', 'connecting_type': 'Access', 'spec_type': 'connection', 'description':'description', '_id': objectid.ObjectId('5059769d6998cb10e2000222'), 'connected_type': 'Switch',
                   'params_spec': [{'param_name': 'id', 'param_type': 'integer'}, 
                                 {'param_name': 'UPDATE_interfaces', 'param_type': 'dict', 'children_spec': [{'param_name': 'UPDATE_idx', 'param_type': 'integer', 'mandatory': True}]}]}
 
-    spec_coll_1 = {'allowed_types': ['Access', 'Switch', 'DSLAM'], 'type_name': 'L3VPN_site', 'parent_type_name': 'UPDATED Parent', 'spec_type': 'collection', '_id': objectid.ObjectId('5059769d6998cb10e2000333'),
+    spec_coll_1 = {'allowed_types': ['Access', 'Switch', 'DSLAM'], 'type_name': 'L3VPN_site', 'parent_type_name': 'UPDATED Parent', 'spec_type': 'collection', 'description':'description', '_id': objectid.ObjectId('5059769d6998cb10e2000333'),
                  'params_spec': [{'param_name': 'id', 'param_type': 'integer'}, 
                                 {'param_name': 'UPDATE_interfaces', 'param_type': 'dict', 'children_spec': [{'param_name': 'UPDATE_idx', 'param_type': 'integer','mandatory': True}]}]}
 
@@ -97,14 +97,14 @@ class TestConnectionOperationalAPI(unittest.TestCase):
     param_coll = {'param_name': 'id',
                   'param_type': 'integer'}
 
-    #Specification type <some name> is not supported!
-    self.check_exception(lambda:  spec.createSpecification('Switch', 'Parent Switch', 'some name',  params_spec=[param_1]), BIException)
+    #Specification type <wrong_type> is not supported!
+    self.check_exception(lambda:  spec.createSpecification('Switch', 'Parent Switch', 'wrong_type', 'description', params_spec=[param_1]), BIException)
 
-    spec_res = spec.createSpecification('Switch', 'Parent Switch', 'resource', params_spec=[param_1, param_2])
+    spec_res = spec.createSpecification('Switch', 'Parent Switch', 'resource', 'description', params_spec=[param_1, param_2])
     
-    spec_conn = spec.createSpecification('L2', 'Parent L2', 'connection', connecting_type='Access', connected_type='Switch', params_spec=[param_conn])
+    spec_conn = spec.createSpecification('L2', 'Parent L2', 'connection', 'description', connecting_type='Access', connected_type='Switch', params_spec=[param_conn])
 
-    spec_coll = spec.createSpecification('l2vpn_site', 'Parent', 'collection', allowed_types=['Access', 'Switch'], params_spec=[param_coll])
+    spec_coll = spec.createSpecification('l2vpn_site', 'Parent', 'collection', 'description', allowed_types=['Access', 'Switch'], params_spec=[param_coll])
 
   def test_updateSpecification(self):
     time.sleep(1)
@@ -126,17 +126,17 @@ class TestConnectionOperationalAPI(unittest.TestCase):
                   'param_type': 'integer'}
 
     #Specification type <some name> is not supported!
-    self.check_exception(lambda:  spec.updateSpecification('5059769d6998cb10e2000111','Switch', 'Parent Switch update', 'some name',  params_spec=[param_1]), BIException)
+    self.check_exception(lambda:  spec.updateSpecification('5059769d6998cb10e2000111','Switch', 'Parent Switch update', 'some name', 'description', params_spec=[param_1]), BIException)
 
-    spec_res = spec.updateSpecification('5059769d6998cb10e2000111','Switch', 'Parent Switch update', 'resource', params_spec=[param_1, param_2, param_3]).to_dict()
+    spec_res = spec.updateSpecification('5059769d6998cb10e2000111','Switch', 'Parent Switch update', 'resource', 'description', params_spec=[param_1, param_2, param_3]).to_dict()
     update_spec_res = self.get_spec()
     self.assertEqual(spec_res, update_spec_res[0])
 
-    spec_conn = spec.updateSpecification('5059769d6998cb10e2000222','L3', 'UPDATED Parent', 'connection', connecting_type='Access', connected_type='Switch', params_spec=[param_conn,param_1]).to_dict()
+    spec_conn = spec.updateSpecification('5059769d6998cb10e2000222','L3', 'UPDATED Parent', 'connection', 'description', connecting_type='Access', connected_type='Switch', params_spec=[param_conn,param_1]).to_dict()
     update_spec_res = self.get_spec()
     self.assertEqual(spec_conn, update_spec_res[1])
 
-    spec_coll = spec.updateSpecification('5059769d6998cb10e2000333','L3VPN_site', 'UPDATED Parent', 'collection', allowed_types=['Access','Switch','DSLAM'], params_spec=[param_conn,param_1]).to_dict()
+    spec_coll = spec.updateSpecification('5059769d6998cb10e2000333','L3VPN_site', 'UPDATED Parent', 'collection', 'description', allowed_types=['Access','Switch','DSLAM'], params_spec=[param_conn,param_1]).to_dict()
     update_spec_res = self.get_spec()
     self.assertEqual(spec_coll, update_spec_res[2])
 
