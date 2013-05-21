@@ -19,17 +19,29 @@ class CollectionOperationalAPI():
         self.conf = InventoryConfiguration()
         self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
 
-    def createCollection(self, coll_type, **add_params):
+    def createCollection(self, coll_type, description, **add_params):
         '''Create collection and save it into DB
         @return created collection object'''
 
-        collection = Collection(specification_name=coll_type, additional_parameters=add_params)
+        collection = Collection(specification_name=coll_type, description=description, additional_parameters=add_params.itervalues().next())
         collection.validate()
 
         self.db_conn.connect()
         coll_id = self.db_conn.save_entity(CommonDatabaseAPI.ET_COLLECTION, collection.to_dict())
         self.db_conn.close()
         collection.set__id(coll_id)
+
+        return collection
+
+    def getCollectionInfo(self, collection_id):
+        '''Find collection in database by ID and return Collection object
+        '''
+
+        self.db_conn.connect()
+        raw_collection = self.db_conn.get_entity(CommonDatabaseAPI.ET_COLLECTION, collection_id)
+        self.db_conn.close()
+
+        collection = Collection(raw_collection)
 
         return collection
 
@@ -56,13 +68,15 @@ class CollectionOperationalAPI():
         self.db_conn.remove_entity(CommonDatabaseAPI.ET_COLLECTION, coll_id)
         self.db_conn.close()
 
-    def updateCollectionInfo(self, coll_id, **add_params):
+    def updateCollectionInfo(self, coll_id, description=None, **add_params):
         '''Update additional_parameters in collection'''
 
         self.db_conn.connect()
         raw_collection = self.db_conn.get_entity(CommonDatabaseAPI.ET_COLLECTION, coll_id)
 
         collection = Collection(raw_collection)
+        if description:
+            collection.set_description(description)
 
         for param_name, param_value in add_params.items():
             for key, value  in param_value.items():

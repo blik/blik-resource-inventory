@@ -17,7 +17,7 @@ class ResourceOperationalAPI:
 
         resource = Resource(specification_name=resource_type, resource_status=status,
                 description=description, external_system=external_system, location=location,
-                department=department, owner=owner, additional_parameters=add_params)
+                department=department, owner=owner, additional_parameters=add_params.itervalues().next())
         resource.validate()
 
         self.db_conn.connect()
@@ -78,11 +78,11 @@ class ResourceOperationalAPI:
         Filter should be dictionary where key = resource attribute with
         optional qualificator suffix (__in, __gt, __ge, __lw, __le)
         '''
-
+        #print resource_filter
         self.db_conn.connect()
         raw_resources = self.db_conn.find_entities(CommonDatabaseAPI.ET_RESOURCE, resource_filter)
         self.db_conn.close()
-
+        #print raw_resources
         ret_list = []
         for res in raw_resources:
             ret_list.append(Resource(res))

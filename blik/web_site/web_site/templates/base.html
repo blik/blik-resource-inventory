@@ -4,28 +4,47 @@
     <meta charset="utf-8">
     <title>Blik Inventory</title>
     <link href="{{ MEDIA_URL }}/media/css/bootstrap.css" rel="stylesheet">
-    <link href="{{ MEDIA_URL }}/media/css/bootstrap-table.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/bootstrap-toggle-buttons.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/jquery.alerts.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/jquery.gritter.css" rel="stylesheet">
-    
+    <link href="{{ MEDIA_URL }}/media/css/DT_bootstrap.css" rel="stylesheet">
+      <!--<link href="{{ MEDIA_URL }}/media/css/widgets.css" rel="stylesheet">
+      <link href="{{ MEDIA_URL }}/media/css/forms.css" rel="stylesheet">
+      <link href="{{ MEDIA_URL }}/media/css/base.css" rel="stylesheet">
+      <link href="{{ MEDIA_URL }}/media/css/admin.css" rel="stylesheet">-->
+      <link href="{{ MEDIA_URL }}/media/css/bootstrap-transfer.css" rel="stylesheet">
+
     <link href="{{ MEDIA_URL }}/media/css/kendo.default.min.css" rel="stylesheet">
     <link href="{{ MEDIA_URL }}/media/css/kendo.common.min.css" rel="stylesheet">
+
     <style type="text/css">
-      body {
-        padding-top: 70px;
-        padding-bottom: 40px;
-      }
-      .hero-unit {
-        padding-top: 10px;
-        padding-bottom: 20px;
+        body {
+            padding-top: 70px;
+            padding-bottom: 40px;
+        }
+        .hero-unit{
+            padding-top: 10px;
+            padding-bottom: 20px;
+        }
+        .yac {
+            padding-top: 10px;
+            padding-bottom: 20px;
 
-      }
-      .form-inline {
 
-        backgroundd: #f8ffe8;
-      }
+        }
+        .yac:before,
+        .yac:after {
+            display: table;
+            line-height: 0;
+            content: "";
+        }
+
+        .yac:after {
+            clear: both;
+        }
+
       .sidebar-nav {
+
         padding: 60px 0;
       }
       .button-right {float:right;}
@@ -39,15 +58,25 @@
             max-height: 1000px;
         }
 
+  .wrapper{
+    цborder: 1px dashed red;
+    height: 24px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 220px;
+ }
+
+
     </style>
     <link rel="shortcut icon" href="{{ MEDIA_URL }}/media/img/blink.png">
-    <link href="{{ MEDIA_URL }}/media/css/bootstrap-responsive.css" rel="stylesheet">
-    
+
     <script src="{{ MEDIA_URL }}/media/js/jquery.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/cookie.js"></script>
+      <script src="{{ MEDIA_URL }}/media/js/bootstrap-transfer.js"></script>
+
 
   </head>
-  <body class="yui-skin-sam" onload="init({{ spec_param_list }}, {{ items }}, '{{ parent_spec }}')">
+  <body class="yui-skin-sam" onload="init({{ spec_param_list }}, {{ items }}, '{{ parent_spec }}', '{{ type }}', {{ res_param_dict }}, {{allowed_coll}}, {{assigned_coll}})">
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
@@ -57,27 +86,28 @@
       </div>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid"><p>
       <div class="span3"></div>
       <div class="row-fluid">
-        <div class="span2" ><p>                 
-          <div class="well sidebar-nav" ><p>
+        <div class="span2" ><p>
+          <div class="well">
             <ul class="nav nav-list">
-              <li><button class="btn btn-large btn-block btn-primary" type="button">Resources</button></li><p>
-              <li><button class="btn btn-large btn-block btn-primary" type="button">Collections</button></li><p>
-              <li><button class="btn btn-large btn-block btn-primary" type="button">Connections</button></li><p>
-              <hr width="100%">
-              <li><div class="btn-group">
-                    <button class="btn btn-large btn-primary"> Specification </button>
-                    <button class="btn btn-large dropdown-toggle btn-primary" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                    <li><a href="/spec_search_res/"> Resources </a></li>
-                    <li><a href="/spec_search_conn/"> Connections </a></li>
-                    <li><a href="/spec_search_coll/"> Collections </a></li>
-                    </ul>
-                  </div>
+              <li class="nav-header"> List elements </li>
+              <li><a href="/resource_search/"> Resources </a></li>
+              <li><a href="/connection_search/"> Connections </a></li>
+              <li><a href="/collection_search/"> Collections </a></li>
+              <li class="divider"></li>
+              <li class="dropdown">
+                <a class="dropdown-toggle"
+                  data-toggle="dropdown"
+                  href="#"> Specifications
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                 <li><a href="/spec_search_res/"> Resources </a></li>
+                 <li><a href="/spec_search_conn/"> Connections </a></li>
+                 <li><a href="/spec_search_coll/"> Collections </a></li>
+                </ul>
               </li>
             </ul>
           </div><!--/.well -->
@@ -90,7 +120,7 @@
               {% block form %}
               {% endblock %}
           </div> <!-- hero-->
-          <div id="table" class="hero-unit">
+          <div id="table" class="hero-unit yac">
               {% block table %}
               {% endblock %}
         </div>
@@ -99,25 +129,38 @@
     </div><!--/.fluid-container-->
 
     <!-- javascript
-    ================================================== -->   
+    ================================================== -->
     <script src="{{ MEDIA_URL }}/media/js/jquery.dataTables.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/jquery.jeditable.js"></script> 
-    <script src="{{ MEDIA_URL }}/media/js/jquery.alerts.js"></script> 
+    <script src="{{ MEDIA_URL }}/media/js/jquery.jeditable.js"></script>
+    <script src="{{ MEDIA_URL }}/media/js/jquery.alerts.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/jquery.json-2.3.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/jquery.toggle.buttons.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/jquery.gritter.min.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-dropdown.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/bootstrap-table.js"></script>
+
+    <script src="{{ MEDIA_URL }}/media/js/DT_bootstrap.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-alert.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script> 
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/bootstrap-transition.js"></script>
-    <script src="{{ MEDIA_URL }}/media/js/bootstrap-tab.js"></script> 
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-tab.js"></script>
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-scrollspy.js"></script>
+
+
+
 
     <script src="{{ MEDIA_URL }}/media/js/BT-specification.js"></script>
-
+    <script src="{{ MEDIA_URL }}/media/js/BT-resource.js"></script>
     <script src="{{ MEDIA_URL }}/media/js/cookie.js"></script>
 
-    <script src="{{ MEDIA_URL }}/media/js/kendo.treeview.min.js"></script>
+    <!--<script src="{{ MEDIA_URL }}/media/js/kendo.treeview.min.js"></script>
+    <script src="{{ MEDIA_URL }}/media/js/bootstrap-multiselect.js__">
+        <script src="{{ MEDIA_URL }}/media/js/SelectFilter2.js"></script></script>-->
     <script src="{{ MEDIA_URL }}/media/js/kendo.web.min.js"></script>
+
+
+
+
+
+
   </body>
 </html>

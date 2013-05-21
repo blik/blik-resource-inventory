@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="span4 well">
+    <div id="treeViewRes"></div>
+  </div>
+  <div class="span8 well">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab" data-toggle="tab" id="param_name_res">Parameter</a></li>
+    </ul>
+      <div class="tab-content" id="tab_content">
+        <div class="tab-pane active" id="tab">
+          <div id="form_param_spec">
+            <div class="span5">
+              <label id="lbl_param_name" for="param_name">Parameter name</label>
+              <input id="param_name" type="text" disabled="disabled">
+              <label for="param_type">Parameter type</label>
+              <input id="param_type" type="text" disabled="disabled">
+              <label for="param_desc"  >Parameter description</label>
+              <input id="param_desc" type="text" disabled="disabled">
+            </div>
+            <div class="span5">
+              <label for="pos_value">Possible values</label>
+              <input id="pos_value" type="text" disabled="disabled">
+              <label for="def_value">Default values</label>
+              <input id="def_value" type="text" disabled="disabled">
+              <label for="mandatory">Mandatory</label>
+              <div id="callback-toggle-button">
+                <input id='mandatory' type="checkbox" disabled="disabled">
+              </div>
+            </div>
+            <div class="span11">
+              <button id="update_spec" class="btn btn-primary btn-small button-right" disabled="true" onClick="updateParamRes();"><i class="icon-refresh"></i> Update </button>
+              <button id="btn_add_res_param" class="btn btn-primary btn-small button-right" disabled="disabled" onClick="addResParam()"><i class="icon-plus"></i> Add </button>
+              <label id="field_err"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script id="treeview-template" type="text/kendo-ui-template">
+  #: item.text #
+</script>

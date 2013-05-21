@@ -198,6 +198,8 @@ a:hover {
           border-radius: 500px;
 }
 
+
+/* modified by yac for display correct field 'records per page' in table
 .row {
   margin-left: -20px;
   *zoom: 1;
@@ -213,6 +215,8 @@ a:hover {
 .row:after {
   clear: both;
 }
+*/
+
 
 [class*="span"] {
   float: left;

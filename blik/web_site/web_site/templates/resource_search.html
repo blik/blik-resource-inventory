@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block form %}
+{% include "includes/resource_search_block.html"%}
+{% endblock %}
+
+{% block table %}
+<div class="hero-unit">
+    <center><h3>Result searching</h3></center>
+    <table id="search" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered"  class="display">
+        <thead>
+        <tr>
+            <th> # </th>
+            <th> Name </th>
+            <th> Status </th>
+            <th> Description </th>
+            <th> External system </th>
+            <th> Location </th>
+            <th> Department </th>
+            <th> Owner </th>
+            <th> Action </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for name in res_list %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ name.specification_name }}</td>
+            <td>{{ name.resource_status }}</td>
+            <td>{{ name.description }}</td>
+            <td>{{ name.external_system }}</td>
+            <td>{{ name.location }}</td>
+            <td>{{ name.department }}</td>
+            <td>{{ name.owner }}</td>
+            <td>
+                {% include "includes/element_search_btn.html"%}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock%}

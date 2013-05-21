@@ -1,0 +1,32 @@
+<legend><center><h2> Connection searching </h2></center></legend>
+<div class="search">
+  <div class="span3">
+    <label for="res_s_name"> Connection name <span style="color: red">*</span> </label>
+    <input id="res_s_name" type="text" class="input-medium search-query">
+  </div>
+  <div class="span3">
+    <label for="connected_type"> Connected type </label>
+    <input id="connected_type" type="text" class="input-medium search-query">
+  </div>
+  <div class="span3">
+   <label for="connecting_type"> Connecting type </label>
+   <input id="connecting_type" type="text" class="input-medium search-query">
+  </div>
+</div>
+
+<div class="span12">
+  <a class="btn btn-primary button-right" href="/connection/"><i class="icon-plus-sign"></i>Create</a>
+  <button id="btn_search" class="btn btn-primary button-right" onClick="searchResource();"><i class="icon-search"></i>Search</button>
+  <p id="search_err"></p>
+</div><br><br><br><br>
+
+<script>
+    //$("#res_s_name").val('{{ search_spec_name }}');
+    $("#res_s_name").focus();
+
+    $("#res_s_name").keyup(function(event){
+        if(event.keyCode == 13){
+            $("#btn_search").click();
+        }
+    });
+</script>

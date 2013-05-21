@@ -69,7 +69,7 @@ class ConnectionOperationalAPI():
 
         return ret_list
 
-    def connectResources(self, conn_type, connecting_res_id, connected_res_id, **add_params):
+    def connectResources(self, conn_type, connecting_res_id, connected_res_id, conn_desc=None, **add_params):
         '''Connecting resource by connect type'''
         filter_conn = {'specification_name': conn_type,
                        'connecting_resource': connecting_res_id,
@@ -78,9 +78,11 @@ class ConnectionOperationalAPI():
         if connecting_res_id == connected_res_id:
             raise BIException('Connection between similar resources is not allowed!')
         elif self.findConnection(filter_conn):
-            raise BIException('Connection between resources "%s" and "%s" by type "%s" already exist!'%(connecting_res_id, connected_res_id, conn_type))
+            raise BIException('Connection between resources already exist!')
 
-        connection = Connection(specification_name=conn_type, connecting_resource=connecting_res_id,  connected_resource=connected_res_id, additional_parameters=add_params)
+        connection = Connection(specification_name=conn_type, connecting_resource=connecting_res_id,
+                                connected_resource=connected_res_id, description=conn_desc,
+                                additional_parameters=add_params.itervalues().next())
 
         res = ResourceOperationalAPI()
         connecting_res = res.getResourceInfo(connecting_res_id)
@@ -107,8 +109,10 @@ class ConnectionOperationalAPI():
                        'connected_resource': connected_res_id}
 
         conn = self.findConnection(filter_conn)
+        conn_id = ''
         for item in conn:
             conn_id = item.get__id()
+
         try:
             if conn_id:
                 self.db_conn.connect()

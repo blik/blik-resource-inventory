@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block form %}
+<center><legend><h2> Resource </h2></legend></center>
+<form id="form_res" class="form-inline">
+    <div class="span12 well">
+    <div class="span3 control-group">
+      <input id="res_id" type="hidden" value='{{ res_id }}'>
+      <label for="res_name" class="control-label">Resource type</label>
+        <select id="res_name" onChange="select_name_res()" >
+          <option id='root_opt'></option>
+          {% for item in items_list %}
+          <option id='{{ item.id }}'> {{ item.type_name }} </option>
+          {% endfor %}
+        </select>
+      <label for="res_status">Status</label>
+      <input id="res_status" type="text" class="input">
+    </div>
+  <div class="span3">
+    <label for="res_desc">Description</label>
+    <input id="res_desc" type="text" class="input">
+    <label for="res_sys">External system</label>
+    <input id="res_sys" type="text" class="input">
+  </div>
+  <div class="span3">
+    <label for="res_loc">Location</label>
+    <input id="res_loc" type="text" class="input">
+    <label for="res_dep">Department</label>
+    <input id="res_dep" type="text" class="input">
+  </div>
+  <div class="span3">
+    <label for="res_own">Owner</label>
+    <input id="res_own" type="text" class="input">
+  </div>
+
+  </div>
+
+</form><div><br><br><br><br><br><br><br><br><br></div>
+<div id="collection"  class="well">
+
+    <div id="test" style="width:400px" class="wwww">
+        <legend><em>Collections</em></legend>
+    </div>
+    <!--<select id="res_collect" onChange="" >
+        <option id='root_collect'></option>
+
+    </select>
+    <select id="res_collect" multiple="multiple">
+        {% for collect in spec_list %}
+        <option value='{{ collect.id }}'> {{ collect.type_name }} </option>
+        {% endfor %}
+    </select>-->
+</div>
+<div class="">
+    <p id="field_err_2"></p>
+    <button id="save_res" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveElement('resource');"><i class="icon-ok-sign"></i> Save </button>
+    <!--<button id="show_collect" class="btn btn-primary button-right" disabled="disabled" onclick="showCollect();"><i class="icon-ok-sign"></i> Show collection </button>-->
+</div><br><br>
+
+
+<script>
+    //$("#root_opt").html('{{ res_name }}');
+    $("#res_status").val('{{ res_status }}');
+    $("#res_desc").val('{{ res_desc }}');
+    $("#res_sys").val('{{ res_sys }}'); $("#res_loc").val('{{ res_loc }}');
+    $("#res_dep").val('{{ res_dep }}'); $("#res_own").val('{{ res_own }}');
+
+    if ($("#res_id").val() == '')
+        $('#collection').remove();
+  //$("#res_name").focus();
+   // $('#collection').hide();
+  $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
+
+</script>
+
+{% endblock %}
+
+{% block table %}
+<legend><b><em>Resource parameters</em></b></legend>
+{% include "includes/element_param.html" %}
+{% endblock %}

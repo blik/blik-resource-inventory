@@ -23,8 +23,11 @@ div.dataTables_paginate {
 
 table.table {
 	clear: both;
+    wwidth: 120px;
 	margin-bottom: 6px !important;
 	max-width: none !important;
+    bawckground-color: #1e5799;
+
 }
 
 table.table thead .sorting,
@@ -62,7 +65,7 @@ table.dataTable th:active {
 
 .top, .bottom {
 	padding: 15px;
-	background-color: #F5F5F5;
+	background-color: #F5F5F7;
 	border: 1px solid #CCCCCC;
 }
 

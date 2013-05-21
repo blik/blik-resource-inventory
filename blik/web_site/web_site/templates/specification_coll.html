@@ -25,7 +25,9 @@
     <input id="spec_desc" name="parent" type="text" class="input">
   </div>
 </form><br><br><br><br><br>
-<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');  $("#allowed_types").val('{{ allowed_types }}');
+<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}'); $("#parent_spec").val('{{ parent_spec }}');
+
+//$("#allowed_types").val('{{ allowed_types }}');
   $("#spec_name").focus()
   $(".input").keyup(function(event){ $("#save_spec").removeAttr('disabled'); });
 </script>

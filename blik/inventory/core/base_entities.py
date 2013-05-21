@@ -48,6 +48,8 @@ class ParameterSpecification:
         self.param_name = params_dict.get('param_name', None)
         self.param_type = params_dict.get('param_type', None)
         self.mandatory = params_dict.get('mandatory', True)
+        #print self.param_name
+        #print 'mandatory: ', self.mandatory
         self.possible_values = params_dict.get('possible_values', None)
         self.default_value = params_dict.get('default_value', None)
         self.description = params_dict.get('description', None)
@@ -104,7 +106,9 @@ class ParameterSpecification:
         #check value type
         if self.param_type == ParameterSpecification.PT_INTEGER:
             try:
+                #print 'type', type(value)
                 value = int(value)
+                #print 'new_type', type(value)
             except ValueError:
                 raise BIValueError('Parameter "%s" should has integer value, but "%s" occured!'%(self.param_name, value))
         elif self.param_type == ParameterSpecification.PT_STRING:
@@ -226,6 +230,7 @@ class BaseSpecification:
 
     def validate_entity(self, params_dict, specs=None):
         '''Validate entity in accordance to specification'''
+        #print 'params_dict1',params_dict
         if not isinstance(params_dict, dict):
             raise BIValueError('@params_dict should has a dictionary type!')
 
@@ -235,22 +240,38 @@ class BaseSpecification:
             params_spec_map = specs
 
         for spec_item in params_spec_map.values():
+            #print 'param_name',spec_item.param_name
+            #print 'params_dict',params_dict
+            #print 'mand', spec_item.is_mandatory()
             if spec_item.is_mandatory() and (spec_item.param_name not in params_dict):
                 raise BIValueError('Parameter "%s" is expected for "%s" entity type!'% \
                                                 (spec_item.param_name, self.type_name()))
+            # add by yac. check value in mandatory spec
+            if spec_item.is_mandatory():
+                param_value = params_dict.get(spec_item.param_name, None)
+                if not param_value:
+                    raise BIValueError('Parameter "%s" is mandatory for filling!' % spec_item.param_name)
 
         for key, value in params_dict.items():
             param_spec = params_spec_map.get(key, None)
             if not param_spec:
                 raise BIValueError('Parameter "%s" is not expected for "%s" entity type!'% (key, self.type_name()))
-
+            #print 'value', value
             param_spec.validate_value(value)
             if not value:
                 continue
 
             if param_spec.param_type == param_spec.PT_LIST:
+                #print 'value',value
                 for item in value:
-                    self.validate_entity(item, param_spec.children_spec)
+                    #print 'PT_LIST',param_spec.PT_LIST
+                    #print 'item', item
+                    #print 'param_spec',param_spec.children_spec
+                    #print 'spec_item', spec_item.param_name
+
+                    # modified by yac. for list like [1,2,3,4]
+                    if isinstance(item, dict):
+                        self.validate_entity(item, param_spec.children_spec)
 
             if param_spec.param_type == param_spec.PT_DICT:
                 self.validate_entity(value, param_spec.children_spec)
@@ -426,7 +447,6 @@ class BaseEntity:
             raise BIValueError('Additional attributes should has dictionary type')
 
         if spec_type_name not in self.SPECIFICATIONS:
-
             raise BIValueError('Entity type "%s" is not expected! %s'% (spec_type_name, self.SPECIFICATIONS))
 
         spec = self.specification()
@@ -490,7 +510,7 @@ class Collection(BaseEntity):
         if res_id is NOT_FOUND:
             raise BIValueError('Resource has not _id attribute (not saved in database).')
         elif res_id in resources:
-            raise BIException('Similar resources are not allowed in collection! resource "%s"',res_id)
+            raise BIException('Resource is present in this collection!')
 
         resources.append(res_id)
         self.set_resources(resources)
