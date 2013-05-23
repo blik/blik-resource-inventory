@@ -1,8 +1,10 @@
-# Django settings for web_site project.
+# Django settings for BlikRI project.
 import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+SITE_HOME = "/blik"
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -30,7 +32,7 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Europe/Kiev'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -51,8 +53,8 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media') #'/home/yac/test_task/web_site/web_site/media'
-#print MEDIA_ROOT
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media')
+
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
@@ -93,6 +95,11 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "BlikRI.context_processors.django_settings",
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -103,13 +110,13 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'web_site.urls'
+ROOT_URLCONF = 'BlikRI.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'web_site.wsgi.application'
+WSGI_APPLICATION = 'BlikRI.wsgi.application'
 
 TEMPLATE_DIRS = (
-    './web_site/templates/',
+    os.path.join(os.path.dirname(__file__), 'templates'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

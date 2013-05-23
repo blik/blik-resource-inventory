@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#pylint: disable-msg=C0301
+#pylint: disable=C0301
 """
 Purpose: Implementation of base entities of Resource Inventory
 Created: 22.01.2012
