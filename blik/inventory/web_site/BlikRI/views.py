@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
+import os
+import ast
+import json
+
 from blik.inventory.api.management_api import ManagementAPI
 from blik.inventory.api.resource_oper_api import ResourceOperationalAPI
 from blik.inventory.api.collection_oper_api import CollectionOperationalAPI
 from blik.inventory.api.connection_oper_api import ConnectionOperationalAPI
 
-from blik.inventory.backend.common import  CommonDatabaseAPI
+from blik.inventory.backend.common import CommonDatabaseAPI
 
 from blik.inventory.core.base_entities import *
 
-
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.utils import simplejson
+from django.conf import settings
 
-import ast
-import json
 
 ELEM_TYPES = {'IS_RES': 'resource',
               'IS_CONN': 'connection',
@@ -29,33 +32,31 @@ SPEC_TYPE = {'specification_res': 'resource',
              'specification_conn': 'connection',
              'specification_coll': 'collection'} 
 
+
 class SetViews():
     def __init__(self):
         self.specification = ManagementAPI()
-        #self.resource = ResourceOperationalAPI()
-        #self.collection = CollectionOperationalAPI()
+
     def conn_search_del(self, request):
         conn_name = request.GET.get('res_s_name',)
         del_id = request.POST.get('del_id',)
 
         connection = ConnectionOperationalAPI()
         conn_filter = {'specification_name': conn_name}
-        spec = self._search_spec(ELEM_TYPES['IS_CONN'], conn_name)[0]
 
         conn_list = self._search_elem(conn_filter, connection)
-        return render_to_response('connection_search.html',{'res_list': conn_list,
-                                                            'elem_type': ELEM_TYPES['IS_CONN']})
+        return render_to_response('connection_search.html', {'res_list': conn_list, 'elem_type': ELEM_TYPES['IS_CONN']},
+                                  context_instance=RequestContext(request))
 
     def connection(self, request):
-        """get connection for create
-        """
+        """ Get connection for create """
         print request
         conn_spec_list = self._search_spec(ELEM_TYPES['IS_CONN'])
-        #print 'conn_spec_list',conn_spec_list
-        return render_to_response('connection.html', { 'items_list': conn_spec_list})
+        return render_to_response('connection.html', {'items_list': conn_spec_list},
+                                  context_instance=RequestContext(request))
 
     def coll_search_del(self, request):
-        """search and delete collections"""
+        """ Search and delete collections """
 
         coll_name = request.GET.get('res_s_name',)
         del_id = request.POST.get('del_id',)
@@ -74,10 +75,11 @@ class SetViews():
         coll_list = self._search_elem(coll_filter, collection)
         return render_to_response('collection_search.html', {'res_list': coll_list,
                                                              'allowed_types': allowed_types,
-                                                             'elem_type': ELEM_TYPES['IS_COLL']})
+                                                             'elem_type': ELEM_TYPES['IS_COLL']},
+                                  context_instance=RequestContext(request))
 
     def collection(self, request):
-        """get collection for modify"""
+        """ Get collection for modify """
 
         coll_id = request.GET.get('elem_id',)
         collection = CollectionOperationalAPI()
@@ -90,8 +92,8 @@ class SetViews():
             coll_params_json = json.dumps(coll['additional_parameters'])
             spec_params_json = json.dumps(coll_spec['params_spec'])
 
-            to_text = spec_params_json.replace('param_name','text')
-            items = to_text.replace('children_spec','items')
+            to_text = spec_params_json.replace('param_name', 'text')
+            items = to_text.replace('children_spec', 'items')
             return render_to_response('collection.html', {'coll_id': coll['_id'],
                                                           'coll_desc': coll['description'],
                                                           'coll_name': coll['specification_name'],
@@ -103,14 +105,15 @@ class SetViews():
                                                           'type': 'element',
                                                           'res_param_dict': coll_params_json,
                                                           'allowed_coll': [],
-                                                          'assigned_coll': []})
-
+                                                          'assigned_coll': []},
+                                      context_instance=RequestContext(request))
 
         coll_spec_list = self._search_spec(ELEM_TYPES['IS_COLL'])
-        return  render_to_response('collection.html', { 'items_list': coll_spec_list})
+        return  render_to_response('collection.html', {'items_list': coll_spec_list},
+                                   context_instance=RequestContext(request))
 
-    def resource(self,request):
-        """Render resource page for creating and modifying """
+    def resource(self, request):
+        """ Render resource page for creating and modifying """
 
         res_id = request.GET.get('elem_id',)
 
@@ -131,7 +134,7 @@ class SetViews():
                 allowed_spec_coll_list.append(s['type_name'])
 
             # find collections
-            collection  = CollectionOperationalAPI()
+            collection = CollectionOperationalAPI()
             coll_filter = {'specification_name__in': allowed_spec_coll_list}
             raw_allow_coll_list = collection.findCollections(coll_filter)
             allow_coll_list = []
@@ -154,29 +157,31 @@ class SetViews():
             res_params_json = json.dumps(res['additional_parameters'])
             spec_params_json = json.dumps(res_spec['params_spec'])
 
-            to_text = spec_params_json.replace('param_name','text')
-            items = to_text.replace('children_spec','items')
+            to_text = spec_params_json.replace('param_name', 'text')
+            items = to_text.replace('children_spec', 'items')
 
-            return render_to_response('resource.html', { 'res_id': res['_id'],
-                                                         'res_status': res['resource_status'],
-                                                         'res_desc': res['description'],
-                                                         'res_sys': res['external_system'],
-                                                         'res_loc': res['location'],
-                                                         'res_dep': res['department'],
-                                                         'res_own': res['owner'],
+            return render_to_response('resource.html', {'res_id': res['_id'],
+                                                        'res_status': res['resource_status'],
+                                                        'res_desc': res['description'],
+                                                        'res_sys': res['external_system'],
+                                                        'res_loc': res['location'],
+                                                        'res_dep': res['department'],
+                                                        'res_own': res['owner'],
 
-                                                         # for init() on base.html
-                                                         'spec_param_list': json.dumps(res_spec),
-                                                         'items': items,
-                                                         'parent_spec': res['specification_name'],
-                                                         'type': 'element',
-                                                         'res_param_dict': res_params_json,
-                                                         'allowed_coll': json.dumps(allow_coll_list),
-                                                         'assigned_coll': assigned_coll_list})
+                                                        # for init() on base.html
+                                                        'spec_param_list': json.dumps(res_spec),
+                                                        'items': items,
+                                                        'parent_spec': res['specification_name'],
+                                                        'type': 'element',
+                                                        'res_param_dict': res_params_json,
+                                                        'allowed_coll': json.dumps(allow_coll_list),
+                                                        'assigned_coll': assigned_coll_list},
+                                      context_instance=RequestContext(request))
         # get specs for creating resource
         res_spec_list = self._search_spec(ELEM_TYPES['IS_RES'])
 
-        return render_to_response('resource.html', { 'items_list': res_spec_list})
+        return render_to_response('resource.html', {'items_list': res_spec_list},
+                                  context_instance=RequestContext(request))
 
     def res_search_del(self, request):
         """ Searching and deleting resource """
@@ -211,8 +216,8 @@ class SetViews():
 
             res_list = self._search_elem(resource_filter, resource)
 
-        return render_to_response('resource_search.html', {'res_list': res_list,
-                                                           'elem_type': ELEM_TYPES['IS_RES']})
+        return render_to_response('resource_search.html', {'res_list': res_list, 'elem_type': ELEM_TYPES['IS_RES']},
+                                  context_instance=RequestContext(request))
 
     def _search_elem(self, resource_filter, element):
         obj_list = []
@@ -264,7 +269,7 @@ class SetViews():
             if elem_id:
                 self._update_collections(old_assigned_to_coll, new_assigned_to_coll, elem_id)
                 resource.updateResource(elem_id, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
-                                         additional_parameters=json.loads(raw_param_res))
+                                        additional_parameters=json.loads(raw_param_res))
             else:
                 resource.createResource(elem_type, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
                                         additional_parameters=json.loads(raw_param_res))
@@ -287,37 +292,27 @@ class SetViews():
         if res_type == ELEM_TYPES['IS_CONN']:
             resource = ResourceOperationalAPI()
 
-            #print request.POST
             connecting_res_id = request.POST.get('connecting_res_id',)
             connected_res_id = request.POST.get('connected_res_id',)
-            #res_spec_list = []
-            connecting_res  = resource.getResourceInfo(connecting_res_id).to_dict()
+            connecting_res = resource.getResourceInfo(connecting_res_id).to_dict()
             res_spec = self._search_spec(ELEM_TYPES['IS_RES'], connecting_res['specification_name'])[0]
-            #res_spec_list.append(res_spec)
-            #print connecting_res
             Resource.setup_specification([ResourceSpecification(res_spec)])
 
             connected_res  = resource.getResourceInfo(connected_res_id).to_dict()
             res_spec = self._search_spec(ELEM_TYPES['IS_RES'], connected_res['specification_name'])[0]
-            #res_spec_list.append(res_spec)
-            #print connected_res
             Resource.setup_specification([ResourceSpecification(res_spec)])
-
 
             connection = ConnectionOperationalAPI()
             conn_spec = self._search_spec(ELEM_TYPES['IS_CONN'], elem_type)[0]
             Connection.setup_specification([ConnectionSpecification(conn_spec)])
 
-            #print conn_spec
             connection.connectResources(elem_type, connecting_res_id, connected_res_id, elem_desc,
                                         additional_parameters=json.loads(raw_param_res))
 
             return HttpResponse()
 
     def _update_collections(self, old_assigned_to_coll, new_assigned_to_coll, res_id):
-        """append or remove resource from collections
-        """
-        print '3'
+        """Append or remove resource from collections"""
         diff_list = set(old_assigned_to_coll)
         new_list = diff_list.symmetric_difference(new_assigned_to_coll)
         collection = CollectionOperationalAPI()
@@ -332,7 +327,7 @@ class SetViews():
             elif coll_id in old_assigned_to_coll:
                 collection.removeResourceFromCollection(coll_id, res_id)
 
-    def save_spec(self,request):
+    def save_spec(self, request):
         if request.is_ajax():
             spec_id = request.POST.get('spec_id',)
             spec_name = request.POST.get('spec_name',)
@@ -355,7 +350,7 @@ class SetViews():
                     self.specification.updateSpecification(spec_id, spec_name, spec_parent, spec_type, description,
                                                            params_spec=params_spec)
                 else:
-                     self.specification.createSpecification(spec_name, spec_parent, spec_type, description,
+                    self.specification.createSpecification(spec_name, spec_parent, spec_type, description,
                                                            params_spec=params_spec)
             elif spec_type == ELEM_TYPES['IS_CONN']:
                 if spec_id:
@@ -377,19 +372,19 @@ class SetViews():
 
             return HttpResponse()
 
-    def modal(self,request):
+    def modal(self, request):
         cookies = request.META.get('HTTP_COOKIE')
         spec_id = request.COOKIES['spec_id']
 
         raw_spec = self.specification.getSpecification(spec_id).to_dict()
         spec_param_json = json.dumps(raw_spec['params_spec'])
 
-        to_text = spec_param_json.replace('param_name','text')
-        items = to_text.replace('children_spec','items')
+        to_text = spec_param_json.replace('param_name', 'text')
+        items = to_text.replace('children_spec', 'items')
 
-        return render_to_response('modal_spec_res.html', {'items': items})
+        return render_to_response('modal_spec_res.html', {'items': items}, context_instance=RequestContext(request))
 
-    def get_param_spec(self,request):
+    def get_param_spec(self, request):
         #spec_id = request.GET.get('spec_id',)
         #print request
 
@@ -424,7 +419,9 @@ class SetViews():
                         connecting_res_dict['connecting_res_id'] = res['id']
                         connecting_res_dict['res_name'] = res['specification_name']
                         connecting_res_list.append(connecting_res_dict)
-                    with open('./web_site/media/connecting_res_list.json', 'w') as f: f.write(json.dumps(connecting_res_list))
+#                    with open('./web_blik/media/connecting_res_list.json', 'w') as f: f.write(json.dumps(connecting_res_list))
+                    with open(os.path.join(settings.MEDIA_ROOT, "connecting_res_list.json"), "w") as f:
+                        f.write(json.dumps(connecting_res_list))
 
                 res_filter = {'specification_name': str(connected_type)}
                 raw_connected_res_list = self._search_elem(res_filter, resource)
@@ -435,32 +432,40 @@ class SetViews():
                         connected_res_dict['connected_res_id'] = res['id']
                         connected_res_dict['res_name'] = res['specification_name']
                         connected_res_list.append(connected_res_dict)
-                    with open('./web_site/media/connected_res_list.json', 'w') as f: f.write(json.dumps(connected_res_list))
-
+#                    with open('./web_blik/media/connected_res_list.json', 'w') as f: f.write(json.dumps(connected_res_list))
+                    with open(os.path.join(settings.MEDIA_ROOT, "connected_res_list.json"), "w") as f:
+                        f.write(json.dumps(connected_res_list))
 
         # for create specifications
-            load_page =  request.META.get('HTTP_REFERER').split('/')
+            load_page = request.META.get('HTTP_REFERER').split('/')
             if load_page[3] in SPEC_TYPE.keys():
                 to_text = spec_param_json.replace('param_name','text')
                 items = to_text.replace('children_spec','items')
 
-                with open('./web_site/media/tree_menu.json', 'w') as f: f.write(items)
-                with open('./web_site/media/spec_param_list.json', 'w') as f: f.write(spec_param_json)
+#                with open('./web_blik/media/tree_menu.json', 'w') as f: f.write(items)
+                with open(os.path.join(settings.MEDIA_ROOT, "tree_menu.json"), 'w') as f:
+                    f.write(items)
+#                with open('./web_blik/media/spec_param_list.json', 'w') as f: f.write(spec_param_json)
+                with open(os.path.join(settings.MEDIA_ROOT, "spec_param_list.json"), 'w') as f:
+                    f.write(spec_param_json)
 
                 return HttpResponse()
 
             #for treeMenu
-            to_text = spec_param_json.replace('param_name','text')
-            items = to_text.replace('children_spec','items')
+            to_text = spec_param_json.replace('param_name', 'text')
+            items = to_text.replace('children_spec', 'items')
 
-            with open('./web_site/media/tree_menu.json', 'w') as f: f.write(items)
-            with open('./web_site/media/spec_param_list.json', 'w') as f: f.write(spec_param_json)
+#            with open('./web_blik/media/tree_menu.json', 'w') as f: f.write(items)
+            with open(os.path.join(settings.MEDIA_ROOT, "tree_menu.json"), "w") as f:
+                f.write(items)
+#            with open('./web_blik/media/spec_param_list.json', 'w') as f: f.write(spec_param_json)
+            with open(os.path.join(settings.MEDIA_ROOT, "spec_param_list.json"), "w") as f:
+                f.write(spec_param_json)
 
             return HttpResponse()
 
     def get_spec(self, request):
-        """get specification for edit
-        """
+        """Get specification for edit"""
         connion_type = conned_type = allowed_types = ''
 
         spec_id = request.GET.get('spec_id',)
@@ -479,32 +484,33 @@ class SetViews():
 
             spec_param_json = json.dumps(raw_spec['params_spec'])
             #for treeMenu
-            to_text = spec_param_json.replace('param_name','text')
-            items = to_text.replace('children_spec','items')
+            to_text = spec_param_json.replace('param_name', 'text')
+            items = to_text.replace('children_spec', 'items')
 
-            return render_to_response(render_page[1]+'.html', {'spec_id': raw_spec['_id'],
-                                                                   'spec_name': raw_spec['type_name'],
-                                                                   'spec_desc': raw_spec['description'],
-                                                                   'parent_spec': raw_spec['parent_type_name'],
-                                                                   'connion_type': connion_type,
-                                                                   'conned_type': conned_type,
+            return render_to_response(render_page[1] + '.html', {'spec_id': raw_spec['_id'],
+                                                                 'spec_name': raw_spec['type_name'],
+                                                                 'spec_desc': raw_spec['description'],
+                                                                 'parent_spec': raw_spec['parent_type_name'],
+                                                                 'connion_type': connion_type,
+                                                                 'conned_type': conned_type,
 
-                                                                   # init()
-                                                                   'spec_param_list': json.dumps(raw_spec),
-                                                                   'items': items,
-                                                                   'type': 'specification', # TODO modify init()
-                                                                   'res_param_dict': {},
-                                                                   'allowed_coll': {},
-                                                                   'assigned_coll': {}})
+                                                                 # init()
+                                                                 'spec_param_list': json.dumps(raw_spec),
+                                                                 'items': items,
+                                                                 'type': 'specification', # TODO modify init()
+                                                                 'res_param_dict': {},
+                                                                 'allowed_coll': {},
+                                                                 'assigned_coll': {}},
+                                      context_instance=RequestContext(request))
 
         #render page for create
         items_list = self._search_spec(SPEC_TYPE[render_page[1]])
 
-        return render_to_response(render_page[1]+'.html', { 'items_list': items_list})
+        return render_to_response(render_page[1] + '.html', {'items_list': items_list},
+                                  context_instance=RequestContext(request))
 
-    def search_del(self,request):
-        """searching and delete for all specifications
-        """
+    def search_del(self, request):
+        """Searching and delete for all specifications"""
         search_spec_name = request.GET.get('s',)
         search_spec_type = request.GET.get('spec_type',)
         search_page = request.META.get('PATH_INFO').split('/')
@@ -524,13 +530,15 @@ class SetViews():
             if search_spec_type == ELEM_TYPES['IS_COLL']:
                 allowed_types = json.dumps(spec_list[0]['allowed_types'])
 
-            return render_to_response(SEARCH_PAGE[search_spec_type]+'.html', {'spec_list': spec_list,
-                                                                              'allowed_types': allowed_types,
-                                                                              'spec_type': spec_type,
-                                                                              'spec_page': spec_page})
+            return render_to_response(SEARCH_PAGE[search_spec_type] + '.html', {'spec_list': spec_list,
+                                                                                'allowed_types': allowed_types,
+                                                                                'spec_type': spec_type,
+                                                                                'spec_page': spec_page},
+                                      context_instance=RequestContext(request))
         # render empty page
-        return render_to_response(search_page[1]+'.html', {'spec_type': spec_type,
-                                                           'spec_page': spec_page})
+        return render_to_response(search_page[1] + '.html', {'spec_type': spec_type,
+                                                             'spec_page': spec_page},
+                                  context_instance=RequestContext(request))
 
     def _search_spec(self, spec_type, spec_name=None):
         if spec_name is None:
@@ -551,8 +559,7 @@ class SetViews():
         return spec_list
 
     def update_elem(self, type_spec):
-        """update elements by specification
+        """Update elements by specification
         {$rename: { <old name1>: <new name1>, <old name2>: <new name2>, ... } }
         """
-
         pass

@@ -18,6 +18,7 @@ CP_BACKEND = 'backend'
 CP_DB_CONNSTRING = 'db_connect_string'
 CP_DB_NAME = 'db_name'
 
+
 class InventoryConfiguration:
     def __init__(self, **kw_args):
         self.backend = kw_args.get(CP_BACKEND, None)
@@ -27,7 +28,7 @@ class InventoryConfiguration:
     def _get_config_param(self, config_obj, param_name):
         value = config_obj.get(param_name, None)
         if value is None:
-            raise BIException('Configuration parameter <%s> is not found!'% param_name)
+            raise BIException('Configuration parameter <%s> is not found!' % param_name)
         return value
 
     def from_dict(self, config_obj):
@@ -42,9 +43,9 @@ class InventoryConfiguration:
             if self.backend == "mongodb":
                 backend_conn_obj = MongoDatabaseAPI(self.db_connect_string, self.db_name)
             else:
-                raise BIException("Blik Resource Inventory don't support <%s> backend type!" %self.backend)
+                raise BIException("Blik Resource Inventory don't support <%s> backend type!" % self.backend)
             return backend_conn_obj
         except IOError, err:
-            raise Exception("Configuration file <%s> is invalid: %s" %(config_file, err.strerror))
+            raise Exception("Configuration file <%s> is invalid: %s" % (config_file, err.strerror))
         except yaml.YAMLError, exc:
-            raise Exception("Error in configuration file <%s>: %s" %(config_file, exc))
+            raise Exception("Error in configuration file <%s>: %s" % (config_file, exc))

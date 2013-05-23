@@ -1,4 +1,3 @@
-
 class CommonDatabaseAPI:
     #entity types
     ET_RESOURCE = 'resource'
