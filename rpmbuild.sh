@@ -42,6 +42,7 @@ mkdir -p $rpmTopDir/{SOURCES,SRPMS,BUILD,SPECS,RPMS}
 
 #Copy files to build directory
 cp -r blik $rpmTopDir/BUILD
+cp -r __init__.py $rpmTopDir/BUILD
 
 #Define version and release in spec-file
 sed -e "s/vNNN/${VERS}/g" -e "s/rNNN/${RELEASE}/g" < ./$SPECFILE >  ${rpmTopDir}/SPECS/$SPECFILE

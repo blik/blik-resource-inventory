@@ -34,6 +34,7 @@ Blik Resource Inventory store their objects in NoSQL database.
 %build
 mkdir -p $RPM_BUILD_ROOT%{blikridir}
 cp -r ./blik/inventory/* $RPM_BUILD_ROOT%{blikridir}
+cp -r ./blik/__init__.py $RPM_BUILD_ROOT%{blikridir}/..
 
 mkdir -p $RPM_BUILD_ROOT/var/log/blik/inventory/
 mkdir -p $RPM_BUILD_ROOT/etc/init.d/
@@ -78,5 +79,6 @@ if [ $RPM_BUILD_ROOT != '/' ]; then rm -rf $RPM_BUILD_ROOT; fi
 %files
 %defattr(-,root,root)
 %attr(775,root,root) %{blikridir}/*
+%attr(775,root,root) %{blikridir}/../__init__.py
 %attr(775,root,root) /var/log/blik/inventory
 %attr(755,root,root) /etc/init.d/blikri
