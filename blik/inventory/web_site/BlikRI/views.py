@@ -307,7 +307,7 @@ class SetViews():
             Connection.setup_specification([ConnectionSpecification(conn_spec)])
 
             connection.connectResources(elem_type, connecting_res_id, connected_res_id, elem_desc,
-                                        additional_parameters=json.loads(raw_param_res))
+                                        **json.loads(raw_param_res))
 
             return HttpResponse()
 

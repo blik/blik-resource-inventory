@@ -85,7 +85,7 @@ class ConnectionOperationalAPI():
 
         connection = Connection(specification_name=conn_type, connecting_resource=connecting_res_id,
                                 connected_resource=connected_res_id, description=conn_desc,
-                                additional_parameters=add_params.itervalues().next())
+                                additional_parameters=add_params)
 
         res = ResourceOperationalAPI()
         connecting_res = res.getResourceInfo(connecting_res_id)
@@ -126,21 +126,17 @@ class ConnectionOperationalAPI():
                               ' connecting_resource "%s", connected_resource "%s"' %
                               (conn_type, connecting_res_id, connected_res_id))
 
-    def getLinkedResources(self, resource_id, conn_type=None, conn_direction=BOTH):
+    def getLinkedResources(self, resource_id, conn_type=None, conn_direction=BOTH, **res_filter):
         """Get linked resource by direction"""
 
-        filter_conn = {'specification_name': conn_type, CONNECTING: resource_id}
-        filter_conned = {'specification_name': conn_type, CONNECTED: resource_id}
-
-        if conn_direction == BOTH:
-            list_1 = []
-            connecting_list = self.findConnection(filter_conn)
-            connected_list = self.findConnection(filter_conned)
-            list_1 = connecting_list + connected_list
-            return list_1
-        elif conn_direction == CONNECTING:
-            return self.findConnection(filter_conn)
-        elif conn_direction == CONNECTED:
-            return self.findConnection(filter_conned)
+        if conn_direction in [BOTH, CONNECTING, CONNECTED]:
+            if not isinstance(conn_direction, list):
+                conn_direction = [conn_direction]
+            result = []
+            for direction in conn_direction:
+                res_filter.update({'specification_name': conn_type, direction: resource_id})
+                result.extend(self.findConnection(res_filter))
+                del res_filter[direction]
+            return result
         else:
-            raise BIException ('Connection directions "%s" is not correct!' % conn_direction)
+            raise BIException('Connection directions "%s" is not correct!' % conn_direction)
