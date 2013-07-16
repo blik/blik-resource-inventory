@@ -26,7 +26,16 @@
     <td>{{ name.type_name }}</td>
     <td>{{ name.parent_type_name }}</td>
     <td>{{ name.description }}</td>
-    <td>{{ allowed_types }}</td>
+    <td>{% for allow in name.allowed_types %}
+            <!--{% if name.allowed_types|length > 1 %}
+              {{ allow }},
+            {% else %}
+                {{ allow }}
+            {% endif %}
+            -->
+        {{ allow }}
+        {% endfor %}
+    </td>
     <td>
       {% include "includes/spec_search_btn.html"%}
     </td>

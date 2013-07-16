@@ -1,1 +1,0 @@
-{"description": "", "type_name": "cisco", "parent_type_name": "", "spec_type": "resource", "_id": "50efec2c6998cb1d68000000", "params_spec": [{"default_value": "", "param_name": "interface", "mandatory": true, "description": "", "possible_values": "", "param_type": "integer"}]}

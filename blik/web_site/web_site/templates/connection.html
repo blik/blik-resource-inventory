@@ -3,23 +3,23 @@
 <center><legend><h2> Connection </h2></legend></center>
 <form id="form_res" class="form-inline">
     <div class="span3 control-group">
-        <input id="res_id" type="hidden" value='{{ coll_id }}'>
+        <input id="res_id" type="hidden" value='{{ conn_id }}'>
         <label class="control-label">Connection type</label>
-        <select id="res_name" onChange="select_name_res()" >
-            <option id='root_opt'></option>
+        <select id="res_name" disabled="disabled">
+           <!-- <option id='root_opt'></option>
             {% for item in items_list %}
             <option id='{{ item.id }}'> {{ item.type_name }} </option>
-            {% endfor %}
+            {% endfor %}-->
         </select>
-        <label for="res_desc">Description</label>
-        <input id="res_desc" type="text" class="input">
+        <label for="elem_desc">Description</label>
+        <input id="elem_desc" type="text" class="input">
 
     </div>
     <div class="span3">
-        <label for="connected_res_name_id">Connected resource</label>
+        <label for="connected_res_name_id">Connected resource name</label>
         <select id="connected_res_name_id" class="connected_res">
         </select>
-        <label for="connecting_res_name_id">Connecting resource</label>
+        <label for="connecting_res_name_id">Connecting resource name</label>
         <select id="connecting_res_name_id"  class="connecting_res">
         </select>
         <!--<label for="connected_res">Connected resource</label>
@@ -37,7 +37,72 @@
 
 <script>
     //$("#root_opt").html('{{ res_name }}');
-    $("#res_desc").val('{{ coll_desc }}');
+    //$("#elem_desc").val('{{ conn_desc }}');
+//
+//    var index = document.getElementById("res_name").selectedIndex;
+//    var opt = document.getElementById("res_name").options;
+//    SELECTED_OPT = opt[index].value;
+//    SELECTED_ID = opt[index].id;
+//    $("#connected_type").val('');
+//    $("#connecting_type").val('');
+//    $("#connected_res_name_id").empty();
+//    $("#connecting_res_name_id").empty();
+//    if (opt[index].id != 'root_opt'){
+        $.ajax({
+            type: "GET",
+            url: "/get_connection_params/",
+            data: "spec_id=" + $("#res_id").val(),
+            dataType : "json",
+            success: function(data){
+                $("#elem_desc").val(data.conn_info.description);
+                $("<option></option>", {value: data.conn_info._id,
+                    text: data.conn_info.specification_name}).appendTo('#res_name');
+
+                // TreeMenu
+                RES_PARAM_DICT.additional_parameters = data.conn_info.additional_parameters;
+                var treeView = $("#treeViewRes").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
+                SPEC_PARAM_LIST = data.conn_spec;
+                ITEMS.push({ id: 'root_node', text: 'List of specification parameters',items: []}); //expanded: true,
+                if (data.items != undefined){
+                    ITEMS[0].items = data.items;
+                    treeView.append(ITEMS);
+                    $(".k-first .k-in").dblclick()
+                }
+
+                // for connection
+                $("#connected_type").val(data.connected_type);
+                $("#connecting_type").val(data.connecting_type);
+                //RES_PARAM_DICT = {'additional_parameters': {}};
+                //convertAdditionalParams(RES_PARAM_DICT, data.spec_param_list.params_spec);
+
+                /////////////   connected/connecting resources for connection       ///////////////
+                //alert('data' + $.toJSON(data))
+                if (data.connecting_res_list != null){
+                    for (var i=0; i<data.connecting_res_list.length; i++){
+                        //$("<option></option>").appendTo('.connecting_res');
+                        $("<option></option>", {value: data.connecting_res_list[i].connecting_res_id,
+                            text: data.connecting_res_list[i].res_name}).appendTo('.connecting_res');
+                    }
+                }
+                if (data.connected_res_list != null){
+                    for (var i=0; i<data.connected_res_list.length; i++){
+                        //$("<option></option>").appendTo('.connected_res');
+                        $("<option></option>", {value: data.connected_res_list[i].connected_res_id,
+                            text: data.connected_res_list[i].res_name}).appendTo('.connected_res');
+                    }
+                }
+
+            },
+            error: function(xhr, str){
+                alert('Возникла ошибка: ' + xhr.responseText);
+            }
+        })
+//    }
+//    else{
+//       // $(".k-treeview").data("kendoTreeView").remove(".k-item");
+//        $("<option></option>").appendTo('.connecting_res');
+//        $("<option></option>").appendTo('.connected_res');
+//    }
     $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
 </script>
 
@@ -48,6 +113,6 @@
 {% endblock %}
 
 {% block table %}
-<legend><b><em>Collection parameters</em></b></legend>
+<legend><b><em>Connection parameters</em></b></legend>
 {% include "includes/element_param.html" %}
 {% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block form %}
+<center><legend><h2> Resource </h2></legend></center>
+<form id="form_res" class="form-inline">
+    <div class="span12 well">
+        <div class="span3 control-group">
+            <input id="res_id" type="hidden" value='{{ res_id }}'>
+            <label for="res_name" class="control-label">Resource type</label>
+            <select id="res_name" onChange="select_name_res()" >
+                <option id='root_opt'></option>
+                {% for item in items_list %}
+                <option id='{{ item.id }}'> {{ item.type_name }} </option>
+                {% endfor %}
+            </select>
+            <label for="res_name1">Name</label>
+            <input id="res_name1" type="text" class="input">
+        </div>
+        <div class="span3">
+            <label for="elem_desc">Description</label>
+            <input id="elem_desc" type="text" class="input">
+            <label for="res_sys">External system</label>
+            <input id="res_sys" type="text" class="input">
+        </div>
+        <div class="span3">
+            <label for="res_loc">Location</label>
+            <input id="res_loc" type="text" class="input">
+            <label for="res_dep">Department</label>
+            <input id="res_dep" type="text" class="input">
+        </div>
+        <div class="span3">
+            <label for="res_own">Owner</label>
+            <input id="res_own" type="text" class="input">
+            <label for="res_status">Status</label>
+            <input id="res_status" type="text" class="input">
+        </div>
+
+    </div>
+
+    <!--<div id="coll_conn">
+        <div class="span6 well" id="collection" >
+            <div id="test" style="width:400px">
+                <legend><em>Collections</em></legend>
+            </div>
+        </div>
+        <div class="span1 well" id="connection" style="width:465px">
+            <legend><em>Connections</em></legend>
+            <label for="conn_name" class="control-label">Connection type</label>
+            <select id="conn_name" onChange="select_connection()" >
+                <option id='root_opt1'></option>
+                {% for conn in conn_list %}
+                <option > {{ conn }} </option>
+                {% endfor %}
+            </select>
+            <label for="connected">Connected with</label>
+            <input id="connected" type="text" class="input" disabled=DISABLED>
+            <label for="connecting">Connecting with</label>
+            <input id="connecting" type="text" class="input" disabled=DISABLED>
+        </div>
+    </div>-->
+</form><br><br><br><br><br><br><br><br>
+
+<div class="">
+    <p id="field_err_2"></p>
+    <button id="save_res" type="submit" class="btn btn-primary button-right" onClick="saveElement('resource');"><i class="icon-ok-sign"></i> Save </button>
+    <!--<button id="show_collect" class="btn btn-primary button-right" disabled="disabled" onclick="showCollect();"><i class="icon-ok-sign"></i> Show collection </button>-->
+</div><br><br>
+
+<script>
+    //$("#root_opt").html('{{ res_name }}');
+    //$("#res_status").val('{{ res_status }}'); $("#res_desc").val('{{ res_desc }}');
+    ///$("#res_sys").val('{{ res_sys }}'); $("#res_loc").val('{{ res_loc }}');
+    //$("#res_dep").val('{{ res_dep }}'); $("#res_own").val('{{ res_own }}');
+    //$("#connected").val('{{ connected_res }}'); $("#connecting").val('{{ connecting_list }}');
+
+    if ($("#res_id").val() == ''){
+        $("#collection").remove();
+        $("#connection").remove();
+        //$("#coll_conn").attr('disabled', 'disabled');
+    }
+    //$("#res_name").focus();
+    // $('#collection').hide();
+    $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
+
+</script>
+
+{% endblock %}
+
+{% block table %}
+<legend><b><em>Resource parameters</em></b></legend>
+{% include "includes/element_param.html" %}
+{% endblock %}

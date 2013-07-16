@@ -22,34 +22,27 @@ $(document).ready(function() {
 function select_name(){
 var x = document.getElementById("parent_spec").selectedIndex;
 var y = document.getElementById("parent_spec").options;
-//alert(y[x].value);
 $("#allowed_types").val('');
 if (y[x].id != 'root_opt'){
 $.ajax({
     type: "GET",
     url: "/tree_menu/",
     data: "spec_id="+y[x].id,
-    success: function(){
-        $.getJSON("/media/tree_menu.json", function(params_list){
+    success: function(data){
             ITEMS = [];
             var treeView = $("#treeView").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
             ITEMS.push({ id: 'root_node', text: 'List of specification parameters',items: []});
-            ITEMS[0].items = params_list.params_spec;
+            ITEMS[0].items = data.params_list.params_spec;
             //clear treeView
             $(".k-treeview").data("kendoTreeView").remove(".k-item");
             treeView.append(ITEMS);
             $(".k-first .k-in").dblclick()
-        });
 
-        $.getJSON("/media/spec_param_list.json", function(spec_param_list){
             SPEC_PARAM_LIST = [];
-            SPEC_PARAM_LIST = spec_param_list.params_spec;
+            SPEC_PARAM_LIST = data.spec_param_list.params_spec;
 
-            $("#allowed_types").val(spec_param_list.allowed_types);
+           // $("#allowed_types").val(data.allowed_types);
 
-
-            alert($.toJSON(spec_param_list))
-        })
     },
     error: function(xhr, str){
        alert('Возникла ошибка: ' + xhr.responseText);
@@ -66,52 +59,52 @@ var ALLOWED_COLL_LIST = [];
 var ASSIGNED_COLL_LIS = [];
 function init(spec_param_list, items, parent_spec, type, res_param_dict, allowed_coll, assigned_coll){
     // init TreeMenu for specification and resource
-    if (type == 'element'){
-        RES_PARAM_DICT.additional_parameters = res_param_dict;
-        $("#res_name").attr('disabled', true);
-        $("#coll_allow_type").val(spec_param_list.allowed_types);
-        //$("#connected_type").val(spec_param_list.connected_type);
-        //$("#connecting_type").val(spec_param_list.connecting_type);
-
-        var treeView = $("#treeViewRes").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
-
-        // for resource
-        if (document.getElementById('test') != undefined){
-            transfer = $('#test').bootstrapTransfer(
-                {'target_id': 'multi-select-input',
-                    'height': '8em',
-                    'hilite_selection': true});
-
-            transfer.populate(allowed_coll);
-            transfer.set_values(assigned_coll);
-            ALLOWED_COLL_LIST = allowed_coll;
-            ASSIGNED_COLL_LIS = assigned_coll;
-        }
-
-    }
-    else{
-        // for collection specification
-        $("#parent_spec").attr('disabled', true);
-        $("#allowed_types").val(spec_param_list.allowed_types);
-
-        var treeView = $("#treeView").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
-    }
-
-    // show on name of element
-    $("#root_opt").html(parent_spec);
-
-    SPEC_PARAM_LIST = spec_param_list.params_spec;
-    ITEMS.push({ id: 'root_node', text: 'List of specification parameters',items: []}); //expanded: true,
-
-    if (items != undefined){
-        ITEMS[0].items = items;
-        treeView.append(ITEMS);
-        $(".k-first .k-in").dblclick()
-    }
+//    if (type == 'element'){
+//        RES_PARAM_DICT.additional_parameters = res_param_dict;
+//        $("#res_name").attr('disabled', true);
+//        $("#coll_allow_type").val(spec_param_list.allowed_types);
+//        //$("#connected_type").val(spec_param_list.connected_type);
+//        //$("#connecting_type").val(spec_param_list.connecting_type);
+//
+//        var treeView = $("#treeViewRes").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
+//
+//        // for resource
+//        if (document.getElementById('test') != undefined){
+//            transfer = $('#test').bootstrapTransfer(
+//                    {'target_id': 'multi-select-input',
+//                    'height': '8em',
+//                    'hilite_selection': true});
+//
+//            transfer.populate(allowed_coll);
+//            transfer.set_values(assigned_coll);
+//            ALLOWED_COLL_LIST = allowed_coll;
+//            ASSIGNED_COLL_LIS = assigned_coll;
+//        }
+//
+//    }
+//    else{
+//        // for collection specification
+//        $("#parent_spec").attr('disabled', true);
+//        $("#allowed_types").val(spec_param_list.allowed_types);
+//
+//        var treeView = $("#treeView").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
+//    }
+//
+//    // show on name of element
+//    $("#root_opt").html(parent_spec);
+//
+//    SPEC_PARAM_LIST = spec_param_list.params_spec;
+//    ITEMS.push({ id: 'root_node', text: 'List of specification parameters555',items: []}); //expanded: true,
+//
+//    if (items != undefined){
+//        ITEMS[0].items = items;
+//        treeView.append(ITEMS);
+//        $(".k-first .k-in").dblclick()
+//    }
 }
 
 function search(spec_type){
-    if ($("#spec_search").val() != ''){
+    //if ($("#spec_search").val() != ''){
         var hiddenField = document.createElement("input");
             hiddenField.setAttribute("type", "hidden");
             hiddenField.setAttribute("name", "spec_type");
@@ -137,11 +130,11 @@ function search(spec_type){
         success: function(items){ alert('ok')}
         })*/
 
-    }
-    else
-        $('#search_err').append('<div id="alert_1" class="span7 alert alert-error">' +
-            '<button type="button" class="close" data-dismiss="alert">×</button>' +
-            '<strong>Error!</strong> Please, input the search data!</div>');
+    //}
+    //else
+    //    $('#search_err').append('<div id="alert_1" class="span7 alert alert-error">' +
+    //        '<button type="button" class="close" data-dismiss="alert">×</button>' +
+    //        '<strong>Error!</strong> Please, input the search data!</div>');
 }
 
 ////////////TODO//////////////////
@@ -153,6 +146,7 @@ function getSearchName(spec_name){
 }
 
 var SELECTED_NODE = '';
+SPEC_PARAM_LIST = [];
 function addSpecParam() {
     var param_name = $('#param_name').val();
     var spec_name = $('#spec_name').val();
@@ -168,7 +162,7 @@ function addSpecParam() {
             //_addParentParamSpec();
             if (_addParentParamSpec() != false){
                 alert('parent')
-               alert('SPEC_PARAM_LIST: '+ $.toJSON(SPEC_PARAM_LIST))
+                alert('SPEC_PARAM_LIST: '+ $.toJSON(SPEC_PARAM_LIST))
                 if ($('.k-first')[0] != undefined)
                     treeview.append({text: param_name}, $('.k-first')); //add parent to root node
                 else{

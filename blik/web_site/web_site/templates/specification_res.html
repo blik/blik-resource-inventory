@@ -1,21 +1,16 @@
 {% extends "base.html" %}
 {% block form %}
-<!--Object: <a id="history" value='{{spec_id}}' onClick="getSpecForEdit('{{spec_id}}', 'resource')">{{spec_name}}</a>-->
 <center><legend><h2>Resource specification</h2></legend></center>
 <form id="form_spec" class="form-inline">
   <div class="span4">
     <label>Specification name <span style="color: red">*</span></label>
-    <input id="spec_name" name="name" type="text" class="input required">
+    <input id="spec_name" name="name" type="text" disabled=DISABLED>
     <input id="spec_id" type="hidden" value='{{ spec_id }}'>
     <div class="control-group">
       <label class="control-label">Parent specification</label>
       <div class="">
-        <select id="parent_spec" onChange="select_name()" >
-          <option id='root_opt'></option>
-          {% for item in items_list %}
-          <option id='{{ item.id }}'> {{ item.type_name }} </option>
-          {% endfor %}
-        </select>
+        <select id="parent_spec"  disabled=DISABLED> </select>
+
       </div>
     </div>
   </div>
@@ -24,15 +19,43 @@
     <input id="spec_desc" name="parent" type="text" class="input">
   </div>
 </form>
-<script>$("#spec_name").val('{{ spec_name }}'); $("#spec_desc").val('{{ spec_desc }}');// $("#parent_spec").val('{{ parent_spec }}');style="visibility: hidden"
-  $("#spec_name").focus();
-  $(".input").keyup(function(event){ $("#save_spec").removeAttr('disabled'); });
-</script>
 
 <div class="span5"><br><br><br>
   <h5 id="field_err_2"></h5>
   <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveSpecification('resource');"><i class="icon-ok-sign"></i> Save </button>
 </div><br><br><br><br><br>
+
+
+<script>
+    $.ajax({
+        type: "GET",
+        url: "/get_specification_params/",
+        data: "spec_id=" + $("#spec_id").val(),
+        dataType : "json",
+        success: function(data){
+            $("#spec_name").val(data.spec_info.type_name);
+            $("#spec_desc").val(data.spec_info.description);
+            $("<option></option>", {value: '', text: data.spec_info.parent_type_name}).appendTo('#parent_spec');
+
+            // TreeMenu
+            var treeView = $("#treeView").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
+            SPEC_PARAM_LIST = data.spec_info.params_spec;
+            ITEMS.push({ id: 'root_node', text: 'List of specification parameters',items: []}); //expanded: true,
+            if (data.items != undefined){
+                ITEMS[0].items = data.items;
+                treeView.append(ITEMS);
+                $(".k-first .k-in").dblclick()
+            }
+
+        },
+        error: function(xhr, str){
+            alert('Возникла ошибка: ' + xhr.responseText);
+        }
+    });
+    $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
+
+</script>
+
 {% endblock %}
 
 {% block table %}

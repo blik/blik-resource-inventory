@@ -12,8 +12,8 @@
             <th> # </th>
             <th> Name </th>
             <th> Description </th>
-            <th> Connecting type </th>
-            <th> Connected type </th>
+            <th> Connecting resource </th>
+            <th> Connected resource </th>
             <th> Action </th>
         </tr>
         </thead>
@@ -23,8 +23,8 @@
             <td>{{ forloop.counter }}</td>
             <td>{{ name.specification_name }}</td>
             <td>{{ name.description }}</td>
-            <td>{{ name.connecting_type }}</td>
-            <td>{{ name.connected_type }}</td>
+            <td>{{ name.connecting_res_name }}</td>
+            <td>{{ name.connected_res_name }}</td>
             <td>
                 {% include "includes/element_search_btn.html"%}
             </td>

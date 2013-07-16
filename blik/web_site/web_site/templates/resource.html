@@ -6,18 +6,18 @@
     <div class="span3 control-group">
       <input id="res_id" type="hidden" value='{{ res_id }}'>
       <label for="res_name" class="control-label">Resource type</label>
-        <select id="res_name" onChange="select_name_res()" >
-          <option id='root_opt'></option>
-          {% for item in items_list %}
-          <option id='{{ item.id }}'> {{ item.type_name }} </option>
-          {% endfor %}
+        <select id="res_name" disabled=DISABLED>
+            <!--<option id='root_opt'></option>
+            {% for item in items_list %}
+            <option id='{{ item.id }}'> {{ item.type_name }} </option>
+            {% endfor %} -->
         </select>
-      <label for="res_status">Status</label>
-      <input id="res_status" type="text" class="input">
+        <label for="res_name1">Name</label>
+        <input id="res_name1" type="text" class="input">
     </div>
   <div class="span3">
-    <label for="res_desc">Description</label>
-    <input id="res_desc" type="text" class="input">
+    <label for="elem_desc">Description</label>
+    <input id="elem_desc" type="text" class="input">
     <label for="res_sys">External system</label>
     <input id="res_sys" type="text" class="input">
   </div>
@@ -30,46 +30,82 @@
   <div class="span3">
     <label for="res_own">Owner</label>
     <input id="res_own" type="text" class="input">
+    <label for="res_status">Status</label>
+    <input id="res_status" type="text" class="input">
   </div>
 
   </div>
 
-</form><div><br><br><br><br><br><br><br><br><br></div>
-<div id="collection"  class="well">
-
-    <div id="test" style="width:400px" class="wwww">
-        <legend><em>Collections</em></legend>
+<div id="coll_conn">
+    <div class="span6 well" id="collection" >
+        <div id="select_coll" style="width:400px">
+            <legend><em>Collections</em></legend>
+        </div>
     </div>
-    <!--<select id="res_collect" onChange="" >
-        <option id='root_collect'></option>
-
-    </select>
-    <select id="res_collect" multiple="multiple">
-        {% for collect in spec_list %}
-        <option value='{{ collect.id }}'> {{ collect.type_name }} </option>
-        {% endfor %}
-    </select>-->
+    <div class="span1 well" id="connection" style="width:465px">
+        <legend><em>Connections</em></legend>
+        <label for="conn_name" class="control-label">Connection type</label>
+        <select id="conn_name" onChange="select_connection()" >
+            <option id='root_opt1'></option>
+            {% for conn in conn_list %}
+            <option > {{ conn }} </option>
+            {% endfor %}
+        </select>
+        <label for="connected">Connected with</label>
+        <input id="connected" type="text" class="input" disabled=DISABLED>
+        <label for="connecting">Connecting with</label>
+        <input id="connecting" type="text" class="input" disabled=DISABLED>
+    </div>
 </div>
+</form><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 <div class="">
     <p id="field_err_2"></p>
-    <button id="save_res" type="submit" class="btn btn-primary button-right" disabled="true" onClick="saveElement('resource');"><i class="icon-ok-sign"></i> Save </button>
-    <!--<button id="show_collect" class="btn btn-primary button-right" disabled="disabled" onclick="showCollect();"><i class="icon-ok-sign"></i> Show collection </button>-->
+    <button id="save_res" type="submit" class="btn btn-primary button-right" onClick="saveElement('resource');"><i class="icon-ok-sign"></i> Save </button>
 </div><br><br>
 
-
 <script>
-    //$("#root_opt").html('{{ res_name }}');
-    $("#res_status").val('{{ res_status }}');
-    $("#res_desc").val('{{ res_desc }}');
-    $("#res_sys").val('{{ res_sys }}'); $("#res_loc").val('{{ res_loc }}');
-    $("#res_dep").val('{{ res_dep }}'); $("#res_own").val('{{ res_own }}');
-
-    if ($("#res_id").val() == '')
-        $('#collection').remove();
-  //$("#res_name").focus();
-   // $('#collection').hide();
   $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
+    $.ajax({
+        type: "GET",
+        url: "/get_resource_params/",
+        data: "elem_id=" + $("#res_id").val(),
+        dataType : "json",
+        success: function(data){
+            RES_PARAM_DICT.additional_parameters = data.res_info.additional_parameters;
+            var treeView = $("#treeViewRes").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
 
+            SPEC_PARAM_LIST = data.res_spec;
+            ITEMS.push({ id: 'root_node', text: 'List of specification parameters',items: []}); //expanded: true,
+
+           if (data.items != undefined){
+                ITEMS[0].items = data.items;
+                treeView.append(ITEMS);
+                $(".k-first .k-in").dblclick()
+            }
+///////////////////////////////
+            $("<option></option>", {value: data.res_info._id,
+                text: data.res_info.specification_name}).appendTo('#res_name');
+/////////////////////////////
+            $("#res_status").val(data.res_info.resource_status);
+            $("#elem_desc").val(data.res_info.description);
+            $("#res_sys").val(data.res_info.external_system);
+            $("#res_loc").val(data.res_info.location);
+            $("#res_dep").val(data.res_info.department);
+             $("#res_own").val(data.res_info.owner);
+//////////////////////////////////
+
+            transfer = $('#select_coll').bootstrapTransfer(
+                    {'target_id': 'multi-select-input',
+                        'height': '8em',
+                        'hilite_selection': true});
+
+            transfer.populate(data.allowed_coll);
+            transfer.set_values(data.assigned_coll);
+            ALLOWED_COLL_LIST = data.allowed_coll;
+            ASSIGNED_COLL_LIS = data.assigned_coll;
+        }
+    })
 </script>
 
 {% endblock %}

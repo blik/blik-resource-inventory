@@ -118,15 +118,11 @@
                 })
             };
             _this.move_elems = function(values, b1, b2) {
-                //alert(values)
-                //alert(b1)
-                //alert(b2)
                 for (var i in values) {
                     var val = values[i];
                     for (var j in _this._remaining_list) {
                         var e = _this._remaining_list[j];
                         if (e[0].value == val) {
-                            //alert($.toJSON(_this._target_list))
 
                             e[1] = b1;
                             _this._target_list[j][1] = b2;

@@ -6,9 +6,10 @@ Created: 20.09.2012
 Author: Yaroslav Chernyakov
 """
 
-from blik.inventory.backend.common import  CommonDatabaseAPI
+from blik.inventory.backend.common import CommonDatabaseAPI
 from blik.inventory.utils.ri_spec_manager import  InventoryConfiguration
 from blik.inventory.api.resource_oper_api import ResourceOperationalAPI
+from blik.inventory.api.management_api import ManagementAPI
 from blik.inventory.core.inv_exceptions import BIException
 from blik.inventory.core.base_entities import *
 
@@ -21,35 +22,49 @@ class ConnectionOperationalAPI():
     def __init__(self):
         self.conf = InventoryConfiguration()
         self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
+        self.CONNECTION = CommonDatabaseAPI.ET_CONNECTION
+        self.RESOURCE = CommonDatabaseAPI.ET_RESOURCE
 
-    def updateConnection(self, conn_id, conn_type=None, connecting_res_id=None, connected_res_id=None, **add_params ):
+    def updateConnection(self, conn_id, description=None, conn_type=None, connecting_res_id=None, connected_res_id=None, **add_params ):
         '''Update connection information.
         Find connection in database by ID and update all non-None passed attributes.
         '''
 
         self.db_conn.connect()
-        res = ResourceOperationalAPI()
-        raw_connection = self.db_conn.get_entity(CommonDatabaseAPI.ET_CONNECTION, conn_id)
+        #res = ResourceOperationalAPI()
+        raw_connection = self.db_conn.get_entity(self.CONNECTION, conn_id)
 
         connection = Connection(raw_connection)
 
-        if conn_type != None:
-            connection.set_specification_name(conn_type)
-        if connecting_res_id != None:
+        #if conn_type:
+        #    connection.set_specification_name(conn_type)
+        if description:
+            connection.set_description(description)
+        if connecting_res_id:
             connection.set_connecting_resource(connecting_res_id)
-            self.connecting_res = res.getResourceInfo(connecting_res_id)
-        if connected_res_id != None:
+            #self.connecting_res = res.getResourceInfo(connecting_res_id)
+        if connected_res_id:
             connection.set_connected_resource(connected_res_id)
-            self.connected_res = res.getResourceInfo(connected_res_id)
+            #self.connected_res = res.getResourceInfo(connected_res_id)
 
         for param_name, param_value in add_params.items():
             for key, value  in param_value.items():
                 connection.set_attribute(key, value)
 
-        connection.connect(self.connecting_res, self.connected_res)
-
-        self.db_conn.save_entity(CommonDatabaseAPI.ET_CONNECTION, connection.to_dict())
+        self.db_conn.save_entity(self.CONNECTION, connection.to_dict())
         self.db_conn.close()
+
+        return connection
+
+    def getConnectionInfo(self, connection_id):
+        '''Find connection in database by ID and return Connection object
+        '''
+
+        self.db_conn.connect()
+        raw_connection = self.db_conn.get_entity(self.CONNECTION, connection_id)
+        self.db_conn.close()
+
+        connection = Connection(raw_connection)
 
         return connection
 
@@ -60,7 +75,7 @@ class ConnectionOperationalAPI():
         '''
 
         self.db_conn.connect()
-        raw_connection = self.db_conn.find_entities(CommonDatabaseAPI.ET_CONNECTION, connection_filter)
+        raw_connection = self.db_conn.find_entities(self.CONNECTION, connection_filter)
         self.db_conn.close()
 
         ret_list = []
@@ -68,6 +83,13 @@ class ConnectionOperationalAPI():
             ret_list.append(Connection(conn))
 
         return ret_list
+
+    def deleteConnection(self, coll_id):
+        '''Delete connection by ID'''
+
+        self.db_conn.connect()
+        self.db_conn.remove_entity(self.CONNECTION, coll_id)
+        self.db_conn.close()
 
     def connectResources(self, conn_type, connecting_res_id, connected_res_id, conn_desc=None, **add_params):
         '''Connecting resource by connect type'''
@@ -82,23 +104,35 @@ class ConnectionOperationalAPI():
 
         connection = Connection(specification_name=conn_type, connecting_resource=connecting_res_id,
                                 connected_resource=connected_res_id, description=conn_desc,
-                                additional_parameters=add_params.itervalues().next())
+                                additional_parameters=add_params)
 
         res = ResourceOperationalAPI()
         connecting_res = res.getResourceInfo(connecting_res_id)
         connected_res = res.getResourceInfo(connected_res_id)
 
         if connecting_res.to_dict() and connected_res.to_dict():
+            spec = ManagementAPI()
+
+            connecting_res_d = connecting_res.to_dict()
+            connected_res_d = connected_res.to_dict()
+            connecting_res_spec = spec.findSpecification(self.RESOURCE, {'type_name': connecting_res_d['specification_name'],
+                                                                           'spec_type': self.RESOURCE})[0]
+            connected_res_spec = spec.findSpecification(self.RESOURCE, {'type_name': connected_res_d['specification_name'],
+                                                                          'spec_type': self.RESOURCE})[0]
+            Resource.setup_specification([ResourceSpecification(connecting_res_spec.to_dict())])
+            Resource.setup_specification([ResourceSpecification(connected_res_spec.to_dict())])
+
             connection.connect(connecting_res, connected_res)
+
             self.db_conn.connect()
-            self.db_conn.save_entity(CommonDatabaseAPI.ET_CONNECTION, connection.to_dict())
+            self.db_conn.save_entity(self.CONNECTION, connection.to_dict())
             self.db_conn.close()
 
     def disconnectResourcesById(self, connection_id):
         '''Disconnect resource by connection ID '''
 
         self.db_conn.connect()
-        self.db_conn.remove_entity(CommonDatabaseAPI.ET_CONNECTION, connection_id)
+        self.db_conn.remove_entity(self.CONNECTION, connection_id)
         self.db_conn.close()
 
     def disconnectResources(self, conn_type, connecting_res_id, connected_res_id):
@@ -116,30 +150,24 @@ class ConnectionOperationalAPI():
         try:
             if conn_id:
                 self.db_conn.connect()
-                self.db_conn.remove_entity(CommonDatabaseAPI.ET_CONNECTION, conn_id)
+                self.db_conn.remove_entity(self.CONNECTION, conn_id)
                 self.db_conn.close()
         except Exception:
             raise BIException('Connection is not found! specification_name "%s", connecting_resource "%s", connected_resource "%s"'%
                               (conn_type, connecting_res_id, connected_res_id))
 
-    def getLinkedResources(self, resource_id, conn_type=None, conn_direction=BOTH):
+    def getLinkedResources(self, resource_id, conn_type, conn_direction=BOTH):
         '''Get linked resource by direction'''
 
         filter_conn = {'specification_name': conn_type, CONNECTING: resource_id}
         filter_conned = {'specification_name': conn_type, CONNECTED: resource_id}
-
         if conn_direction == BOTH:
-            list_1 = []
             connecting_list = self.findConnection(filter_conn)
             connected_list = self.findConnection(filter_conned)
-            for item in connecting_list:
-                list_1.append(item)
-            for item in connected_list:
-                list_1.append(item)
-            return list_1
+            return connected_list.extend(connecting_list)
         elif conn_direction == CONNECTING:
             return self.findConnection(filter_conn)
         elif conn_direction == CONNECTED:
             return self.findConnection(filter_conned)
         else:
-            raise BIException ('Connection directions "%s" is not correct!'%conn_direction)    
+            raise BIException ('Connection directions "%s" is not correct!' % conn_direction)

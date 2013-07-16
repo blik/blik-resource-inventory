@@ -40,6 +40,46 @@ $(document).ready(function() {
 
 });
 
+function select_connection(){
+    var index = document.getElementById("conn_name").selectedIndex;
+    var opt = document.getElementById("conn_name").options;
+    SELECTED_OPT = opt[index].value;
+    SELECTED_ID = opt[index].id;
+    $("#connecting").val('');
+    $("#connected").val('');
+    if (opt[index].id != 'root_opt1'){
+
+        var data_dict = {};
+        data_dict['elem_id'] = $('#res_id').val();
+        data_dict['conn_id'] = opt[index].value;
+
+        $.ajax({
+            type: "GET",
+            url: "/get_connection_type/",
+            data: data_dict,
+            dataType : "json",
+            success: function(data){
+
+                if (data.connecting_list != null){
+                    //for (var i=0; i<data.connecting_list.length; i++){
+                    //    $("#connecting").val(data.connecting_list[i])
+                    //}
+                    $("#connecting").val(data.connecting_list)
+                }
+                if (data.connected_list != null){
+                    //alert('data' + $.toJSON(data.connected_list))
+                    $("#connected").val(data.connected_list)
+                    //for (var i=0; i<data.connected_list.length; i++){
+                    //    $("#connected").val(data.connected_list[i])
+                    //}
+                }
+
+            }
+
+        })
+    }
+}
+
 function select_name_res(){
     var index = document.getElementById("res_name").selectedIndex;
     var opt = document.getElementById("res_name").options;
@@ -49,25 +89,25 @@ function select_name_res(){
     $("#connecting_type").val('');
     $("#connected_res_name_id").empty();
     $("#connecting_res_name_id").empty();
+    //alert('1')
     if (opt[index].id != 'root_opt'){
         $.ajax({
             type: "GET",
             url: "/tree_menu/",
             data: "spec_id=" + opt[index].id,
-            success: function(){
-                // json for treeMenu
-                $.getJSON("/media/tree_menu.json", function(params_list){
-                    //alert('params_list'+ $.toJSON(params_list.params_spec))
+            dataType : "json",
+            success: function(data){
+                    // json for treeMenu
                     var items = [];
                     var treeView = $("#treeViewRes").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");
 
                     if ($("#coll_allow_type").val() != undefined){
-                        $("#coll_allow_type").val(params_list.allowed_types)
+                        $("#coll_allow_type").val(data.params_list.allowed_types)
                     }
 
                     // generate list of parameters
-                    items.push({id: 'root_node', text: 'List of specification parameters', items: []});
-                    items[0].items = params_list.params_spec;
+                    items.push({id: 'root_node', text: 'List of specification parameters2', items: []});
+                    items[0].items = data.params_list.params_spec;
 
                     // clear treeView
                     $(".k-treeview").data("kendoTreeView").remove(".k-item");
@@ -75,40 +115,31 @@ function select_name_res(){
                     treeView.append(items);
                     // open root_node through dblclick on item :)
                     $(".k-first .k-in").dblclick()
-                });
-                // json specifications params list for resource
-                $.getJSON("/media/spec_param_list.json", function(spec_param_list){
-                    // global var. see BT-specification.js
+
                     SPEC_PARAM_LIST = [];
-                    SPEC_PARAM_LIST = spec_param_list.params_spec;
-
-                    // for connection
-                    $("#connected_type").val(spec_param_list.connected_type);
-                    $("#connecting_type").val(spec_param_list.connecting_type);
-
+                    SPEC_PARAM_LIST = data.spec_param_list.params_spec;
+               // for connection
+                    $("#connected_type").val(data.connected_type);
+                    $("#connecting_type").val(data.connecting_type);
                     RES_PARAM_DICT = {'additional_parameters': {}};
-                    convertAdditionalParams(RES_PARAM_DICT, spec_param_list.params_spec);
-                });
+                    convertAdditionalParams(RES_PARAM_DICT, data.spec_param_list.params_spec);
 
-
-                $.getJSON("/media/connecting_res_list.json", function(connecting_res){
-                    //alert($.toJSON(connecting_res));
-
-                    if (connecting_res != null){
-                        for (var i=0; i<connecting_res.length; i++){
-                            $("<option></option>", {value: connecting_res[i].connecting_res_id, text: connecting_res[i].res_name}).appendTo('.connecting_res');
+                /////////////   connected/connecting resources for connection       ///////////////
+                //alert('data' + $.toJSON(data))
+                    if (data.connecting_res_list != null){
+                        for (var i=0; i<data.connecting_res_list.length; i++){
+                            //$("<option></option>").appendTo('.connecting_res');
+                            $("<option></option>", {value: data.connecting_res_list[i].connecting_res_id,
+                                                    text: data.connecting_res_list[i].res_name}).appendTo('.connecting_res');
                         }
                     }
-                });
-                $.getJSON("/media/connected_res_list.json", function(connected_res){
-                    if (connected_res != null){
-                        for (var i=0; i<connected_res.length; i++){
-                            $("<option></option>", {value: connected_res[i].connected_res_id, text: connected_res[i].res_name}).appendTo('.connected_res');
+                    if (data.connected_res_list != null){
+                        for (var i=0; i<data.connected_res_list.length; i++){
+                            //$("<option></option>").appendTo('.connected_res');
+                            $("<option></option>", {value: data.connected_res_list[i].connected_res_id,
+                                                    text: data.connected_res_list[i].res_name}).appendTo('.connected_res');
                         }
                     }
-                })
-
-
 
             },
             error: function(xhr, str){
@@ -119,6 +150,8 @@ function select_name_res(){
     else{
         $("#coll_allow_type").val('');
         $(".k-treeview").data("kendoTreeView").remove(".k-item");
+        $("<option></option>").appendTo('.connecting_res');
+        $("<option></option>").appendTo('.connected_res');
     }
 }
 
@@ -195,33 +228,57 @@ function searchResource(){
     //if ($("#res_s_name").val() != ''){
         var hiddenField = document.createElement("input");
         hiddenField.setAttribute("type", "hidden");
-        hiddenField.setAttribute("name", "res_s_name");
-        hiddenField.setAttribute("value", $("#res_s_name").val());
+        hiddenField.setAttribute("name", "specification_name");
+        hiddenField.setAttribute("value", $("#specification_name").val());
         var hiddenField1 = document.createElement("input");
         hiddenField1.setAttribute("type", "hidden");
-        hiddenField1.setAttribute("name", "res_s_stat");
-        hiddenField1.setAttribute("value", $("#res_s_stat").val());
+        hiddenField1.setAttribute("name", "status");
+        hiddenField1.setAttribute("value", $("#status").val());
         var hiddenField2 = document.createElement("input");
-        hiddenField1.setAttribute("type", "hidden");
-        hiddenField1.setAttribute("name", "res_s_ext_sys");
-        hiddenField1.setAttribute("value", $("#res_s_ext_sys").val());
+        hiddenField2.setAttribute("type", "hidden");
+        hiddenField2.setAttribute("name", "external_system");
+        hiddenField2.setAttribute("value", $("#external_system").val());
+        var hiddenField3 = document.createElement("input");
+        hiddenField3.setAttribute("type", "hidden");
+        hiddenField3.setAttribute("name", "owner");
+        hiddenField3.setAttribute("value", $("#owner").val());
+        var hiddenField4 = document.createElement("input");
+        hiddenField4.setAttribute("type", "hidden");
+        hiddenField4.setAttribute("name", "location");
+        hiddenField4.setAttribute("value", $("#location").val());
+        var hiddenField5 = document.createElement("input");
+        hiddenField5.setAttribute("type", "hidden");
+        hiddenField5.setAttribute("name", "department");
+        hiddenField5.setAttribute("value", $("#department").val());
 
         var form = document.createElement("form");
         form.setAttribute("method", "GET");
         form.appendChild(hiddenField);
+        form.appendChild(hiddenField1);
         form.appendChild(hiddenField2);
+        form.appendChild(hiddenField3);
+        form.appendChild(hiddenField4);
+        form.appendChild(hiddenField5);
         form.submit();
 
 
-        /*        var data_dict = {};
-         data_dict['spec_type'] = spec_type;
-         data_dict['s'] = $("#spec_search").val();
-         $.ajax({
-         type: "GET",
-         url: "/spec_search_res/",
-         data: data_dict,
-         success: function(items){ alert('ok')}
-         })*/
+//         var data_dict = {};
+//         data_dict['specification_name'] = $("#specification_name").val();
+//         data_dict['status'] = $("#status").val();
+//         data_dict['external_system'] = $("#external_system").val();
+//         data_dict['owner'] = $("#owner").val();
+//         data_dict['location'] = $("#location").val();
+//         data_dict['department'] = $("#department").val();
+//                             //data_dict['s'] = $("#specification_name").val();
+//         //alert('data_dict' + $.toJSON(data_dict))
+//        json_data = $.toJSON(data_dict)
+//    $.ajax({
+//        type: "GET",
+//        url: "/resource_search/",
+//        data: json_data,
+//        dataType : "json",
+//        success: function(data, textStatus){alert('data'+ $.toJSON(data))}
+//        })
 
     //}
     //else{
@@ -237,15 +294,23 @@ function saveElement(elem_type){
         var data_dict = {};
             data_dict['elem_id'] = $('#res_id').val();
 
+            var index = document.getElementById("res_name").selectedIndex;
+            var opt = document.getElementById("res_name").options;
+            //SELECTED_OPT = opt[index].value;
+
+
+
             if (SELECTED_OPT == '')
                 data_dict['res_name'] = $("#root_opt").val();
             else
-                data_dict['res_name'] = SELECTED_OPT;
+                //data_dict['res_name'] = SELECTED_OPT;
+                data_dict['res_name'] = opt[index].value;
 
+            //alert('data'+ $.toJSON($("#res_name").val()))
             //data_dict['res_id'] = SELECTED_ID;
             data_dict['res_type'] = elem_type;
             data_dict['res_status'] = $('#res_status').val();
-            data_dict['res_desc'] = $('#res_desc').val();
+            data_dict['elem_desc'] = $('#elem_desc').val();
             data_dict['res_sys'] = $('#res_sys').val();
             data_dict['res_loc'] = $('#res_loc').val();
             data_dict['res_dep'] = $('#res_dep').val();
@@ -261,7 +326,7 @@ function saveElement(elem_type){
 
     // add collection to resource
 
-        if (document.getElementById('test') != undefined){
+        if (document.getElementById('select_coll') != undefined){
             data_dict['old_assigned_to_coll'] = $.toJSON(ASSIGNED_COLL_LIS);
             data_dict['new_assigned_to_coll'] = $.toJSON(transfer.get_values());
         }
@@ -282,7 +347,7 @@ function saveElement(elem_type){
                 else if (elem_type == ELEM_TYPE.IS_COLL)
                     window.location = "/collection_search/";
                 else if (elem_type == ELEM_TYPE.IS_CONN)
-                    window.location = "/collection_search/";
+                    window.location = "/connection_search/";
             })
         },
         error: function(xhr, str,f,t){
@@ -319,21 +384,21 @@ function saveElement(elem_type){
         })
     }
 }
-var show = true;
-function showCollect(){
-    //var show = true;
-    if (show == true){
-        $('#collection').show();
-        $('#show_collect').text('Hide collection');
-        show = false;
-    }
-    else{
-    //$('#show_collect').append('<i class="icon-ok-sign"></i>Hide collection');
-        $('#show_collect').text('Show collection');
-        $('#collection').hide();
-        show = true
-    }
-}
+//var show = true;
+//function showCollect(){
+//    //var show = true;
+//    if (show == true){
+//        $('#collection').show();
+//        $('#show_collect').text('Hide collection');
+//        show = false;
+//    }
+//    else{
+//    //$('#show_collect').append('<i class="icon-ok-sign"></i>Hide collection');
+//        $('#show_collect').text('Show collection');
+//        $('#collection').hide();
+//        show = true
+//    }
+//}
 
 function updateParamRes(){
     $('#field_err').remove();
