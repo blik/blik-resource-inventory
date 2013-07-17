@@ -1,0 +1,43 @@
+#!/bin/bash
+# chkconfig: 345 90 10
+# description: Blik Resource Inventory
+
+# Source function library.
+. /etc/init.d/functions
+
+BLIKRI_PATH=/opt/blik/inventory
+BLIKRI_BIN=$BLIKRI_PATH/service/runserver.py
+BLIKRI_PID=/var/run/blikri.pid
+
+start() {
+        echo -n $"Starting Blik Resource Inventory: "
+        PYTHONPATH=$PYTHONPATH:/opt; export PYTHONPATH
+        $BLIKRI_BIN
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && echo_success
+        [ $RETVAL -ne 0 ] && echo_failure
+        echo
+        pgrep -f $BLIKRI_BIN > $BLIKRI_PID
+}
+
+stop() {
+        echo -n $"Shutting Blik Resource Inventory: "
+        killproc -p $BLIKRI_PID 2>&1
+        echo
+}
+
+case "$1" in
+    start)
+        $1
+        ;;
+    stop)
+        $1
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 2
+esac

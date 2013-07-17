@@ -10,6 +10,7 @@ from blik.inventory.utils.ri_spec_manager import *
 DUMP_FILES_LOCATION = "/tmp/BlikRISpecManager"
 DB_NAME = "Test_BlikRI"
 
+
 def prepare():
     #   Clear test directory
     if os.path.exists(DUMP_FILES_LOCATION):
@@ -21,12 +22,13 @@ def prepare():
     coll.remove()
     conn.disconnect()
 
+
 class TestSpecificationManager(unittest.TestCase):
-    def test_01_check_key(self, object = {"specifications" : [{"type_name": "Interface"}, {"type_name": "Device"}]}, key = "some_key"):
+    def test_01_check_key(self, object={"specifications": [{"type_name": "Interface"}, {"type_name": "Device"}]}, key="some_key"):
         spec = SpecificationManager()
         self.assertRaises(Exception, spec.check_key, object, key)
 
-    def test_02_restore_spec(self, spec_file = "../tests/simple_spec.yaml", filter = None):
+    def test_02_restore_spec(self, spec_file="./tests/simple_spec.yaml", filter=None):
         spec = SpecificationManager()
         #   Try restore specifications from not existing file
         self.assertRaises(Exception, spec.restore_spec, "/wrong/path/to/restore/spec.file")
@@ -42,7 +44,7 @@ class TestSpecificationManager(unittest.TestCase):
             result.append(item)
         self.assertEqual(part_insert_data, result)
 
-    def test_03_dump_spec(self, spec_file = "/wrong/path/to/dump/spec.file", filter = None):
+    def test_03_dump_spec(self, spec_file="/wrong/path/to/dump/spec.file", filter=None):
         spec = SpecificationManager()
         #   Try dump specifications to wrong file(wrong path or permissions)
         self.assertRaises(Exception, spec.dump_spec, spec_file)

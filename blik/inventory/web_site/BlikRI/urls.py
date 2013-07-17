@@ -1,7 +1,6 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns
 from django.conf import settings
-from views import SetViews
-import os
+from blik.inventory.web_site.BlikRI.views import SetViews
 
 view = SetViews()
 
