@@ -18,9 +18,8 @@ CONNECTING = 'connecting_resource'
 CONNECTED = 'connected_resource'
 CONFIG_FILE = "/opt/blik/inventory/conf/blik-ri-conf.yaml"
 
-
 class ConnectionOperationalAPI():
-    """ class for connection """
+    """ Implemented API for connection """
     def __init__(self):
         self.conf = InventoryConfiguration()
         self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
@@ -28,14 +27,11 @@ class ConnectionOperationalAPI():
         self.RESOURCE = CommonDatabaseAPI.ET_RESOURCE
 
     def updateConnection(self, conn_id, conn_type=None, connecting_res_id=None, connected_res_id=None, **add_params):
-        """
-        Update connection information.
+        """ Update connection information.
         Find connection in database by ID and update all non-None passed attributes.
         """
-
         self.db_conn.connect()
         raw_connection = self.db_conn.get_entity(self.CONNECTION, conn_id)
-
         connection = Connection(raw_connection)
 
         #if description:
@@ -55,14 +51,13 @@ class ConnectionOperationalAPI():
         return connection
 
     def getConnectionInfo(self, connection_id):
-        """Find connection in database by ID and return Connection object"""
+        """ Find connection in database by ID and return Connection object """
         self.db_conn.connect()
         raw_connection = self.db_conn.get_entity(self.CONNECTION, connection_id)
         self.db_conn.close()
+        #connection = Connection(raw_connection)
 
-        connection = Connection(raw_connection)
-
-        return connection
+        return Connection(raw_connection)
 
     def findConnection(self, connection_filter):
         """
@@ -70,7 +65,6 @@ class ConnectionOperationalAPI():
         Filter should be dictionary where key = resource attribute with
         optional qualificator suffix (__in, __gt, __ge, __lw, __le, __all).
         """
-
         self.db_conn.connect()
         raw_connection = self.db_conn.find_entities(self.CONNECTION, connection_filter)
         self.db_conn.close()
@@ -82,14 +76,13 @@ class ConnectionOperationalAPI():
         return ret_list
 
     def deleteConnection(self, coll_id):
-        """Delete connection by ID"""
-
+        """ Delete connection by ID """
         self.db_conn.connect()
         self.db_conn.remove_entity(self.CONNECTION, coll_id)
         self.db_conn.close()
 
     def connectResources(self, conn_type, connecting_res_id, connected_res_id, conn_desc=None, **add_params):
-        """Connecting resource by connect type"""
+        """ Connecting resource by connect type """
         filter_conn = {'specification_name': conn_type,
                        'connecting_resource': connecting_res_id,
                        'connected_resource': connected_res_id}
@@ -112,8 +105,9 @@ class ConnectionOperationalAPI():
 
             connecting_res_d = connecting_res.to_dict()
             connected_res_d = connected_res.to_dict()
-            connecting_res_spec = spec.findSpecification(self.RESOURCE, {'type_name': connecting_res_d['specification_name'],
-                                                                           'spec_type': self.RESOURCE})[0]
+            connecting_res_spec = spec.findSpecification(self.RESOURCE,
+                                                         {'type_name': connecting_res_d['specification_name'],
+                                                          'spec_type': self.RESOURCE})[0]
             connected_res_spec = spec.findSpecification(self.RESOURCE, {'type_name': connected_res_d['specification_name'],
                                                                           'spec_type': self.RESOURCE})[0]
             Resource.setup_specification([ResourceSpecification(connecting_res_spec.to_dict())])
