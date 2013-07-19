@@ -9,16 +9,30 @@
     <div class="control-group">
       <label class="control-label">Parent specification</label>
       <div class="controls">
-        <select id="parent_spec" disabled="disabled">
-        </select>
+        <select id="parent_spec" disabled="disabled"></select>
       </div>
     </div>
   </div>
   <div class="span4">
-    <label>Connection type<span style="color: red">*</span></label>
-    <input id="connion_type" type="text" class="input required">
-    <label>Connected type<span style="color: red">*</span></label>
-    <input id="conned_type" type="text" class="input required">
+
+      <div class="controls">
+          <label>Connecting resource type<span style="color: red">*</span></label>
+          <select id="connion_type">
+              <!--{% for conn in res_type_list %}
+              <option id='{{ conn.id }}'> {{ conn.name }} </option>
+              {% endfor %} -->
+          </select>
+      </div>
+      <!--<input id="connion_type" type="text" class="input required">-->
+      <div class="controls">
+          <label>Connected resource type<span style="color: red">*</span></label>
+          <select id="conned_type">
+              <!--{% for conn in res_type_list %}
+              <option id='{{ conn.id }}'> {{ conn.name }} </option>
+              {% endfor %}-->
+          </select>
+      </div>
+
   </div>
   <div class="span3">
     <label>Description</label>
@@ -28,7 +42,7 @@
 
 <p id="field_err_2"></p>
 <div>
-  <button id="save_spec" type="submit" class="btn btn-primary button-right" disabled="disabled" onClick="saveSpecification('connection');"><i class="icon-plus"></i> Save </button>
+  <button id="save_spec" type="submit" class="btn btn-primary button-right" onClick="saveSpecification('connection');"><i class="icon-plus"></i> Save </button>
 </div><br><br>
 
 <script>
@@ -40,9 +54,20 @@
         success: function(data){
             $("#spec_name").val(data.spec_info.type_name);
             $("#spec_desc").val(data.spec_info.description);
-            $("<option></option>", {value: '', text: data.spec_info.parent_type_name}).appendTo('#parent_spec');
-            $("#connion_type").val(data.spec_info.connecting_type);
-            $("#conned_type").val(data.spec_info.connected_type);
+            $("<option></option>", {value: data.spec_info.parent_type_name, text: data.spec_info.parent_type_name}).appendTo('#parent_spec');
+
+            if (data.res_type_list != null){
+                for (var i=0; i<data.res_type_list.length; i++){
+                    $("<option></option>", {id: data.res_type_list[i].id, text: data.res_type_list[i].name}).appendTo('#connion_type');
+                    $("<option></option>", {id: data.res_type_list[i].id, text: data.res_type_list[i].name}).appendTo('#conned_type');
+                }
+            }
+
+
+            if (data.spec_info.connected_type != null)
+                $("#conned_type").val(data.spec_info.connected_type);
+            if (data.spec_info.connecting_type != null)
+                $("#connion_type").val(data.spec_info.connecting_type);
 
             // TreeMenu
             var treeView = $("#treeView").kendoTreeView({template: kendo.template($("#treeview-template").html())}).data("kendoTreeView");

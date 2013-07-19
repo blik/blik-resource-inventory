@@ -64,11 +64,11 @@ function select_connection(){
                     //for (var i=0; i<data.connecting_list.length; i++){
                     //    $("#connecting").val(data.connecting_list[i])
                     //}
-                    $("#connecting").val(data.connecting_list)
+                    $("#connecting").val(data.connecting_list);
                 }
                 if (data.connected_list != null){
                     //alert('data' + $.toJSON(data.connected_list))
-                    $("#connected").val(data.connected_list)
+                    $("#connected").val(data.connected_list);
                     //for (var i=0; i<data.connected_list.length; i++){
                     //    $("#connected").val(data.connected_list[i])
                     //}
@@ -290,7 +290,11 @@ function searchResource(){
 }
 
 function saveElement(elem_type){
-    if (_checkRequiredSave() == true) {
+    //if (_checkRequiredSave() == true) {
+    if ($('#res_name1').val() == '' || $('#res_status').val() == ''){
+        jAlert('Fill require field!')
+    }
+    else{
         var data_dict = {};
             data_dict['elem_id'] = $('#res_id').val();
 
@@ -309,6 +313,7 @@ function saveElement(elem_type){
             //alert('data'+ $.toJSON($("#res_name").val()))
             //data_dict['res_id'] = SELECTED_ID;
             data_dict['res_type'] = elem_type;
+            data_dict['res_name1'] = $('#res_name1').val();
             data_dict['res_status'] = $('#res_status').val();
             data_dict['elem_desc'] = $('#elem_desc').val();
             data_dict['res_sys'] = $('#res_sys').val();
@@ -334,7 +339,6 @@ function saveElement(elem_type){
             data_dict['old_assigned_to_coll'] = '';
             data_dict['new_assigned_to_coll'] = ''
         }
-
 
     $.ajax({
         type: "POST",

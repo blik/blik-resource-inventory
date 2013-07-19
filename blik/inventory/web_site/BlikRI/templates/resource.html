@@ -6,13 +6,8 @@
     <div class="span3 control-group">
       <input id="res_id" type="hidden" value='{{ res_id }}'>
       <label for="res_name" class="control-label">Resource type</label>
-        <select id="res_name" disabled=DISABLED>
-            <!--<option id='root_opt'></option>
-            {% for item in items_list %}
-            <option id='{{ item.id }}'> {{ item.type_name }} </option>
-            {% endfor %} -->
-        </select>
-        <label for="res_name1">Name</label>
+        <select id="res_name" disabled=DISABLED></select>
+        <label for="res_name1">Name<span style="color: red">*</span></label>
         <input id="res_name1" type="text" class="input">
     </div>
   <div class="span3">
@@ -30,7 +25,7 @@
   <div class="span3">
     <label for="res_own">Owner</label>
     <input id="res_own" type="text" class="input">
-    <label for="res_status">Status</label>
+    <label for="res_status">Status<span style="color: red">*</span></label>
     <input id="res_status" type="text" class="input">
   </div>
 
@@ -83,25 +78,27 @@
                 treeView.append(ITEMS);
                 $(".k-first .k-in").dblclick()
             }
-///////////////////////////////
+/////////////////////////////// fill resource type
             $("<option></option>", {value: data.res_info._id,
                 text: data.res_info.specification_name}).appendTo('#res_name');
 /////////////////////////////
             $("#res_status").val(data.res_info.resource_status);
+            $("#res_name1").val(data.res_info.resource_name);
             $("#elem_desc").val(data.res_info.description);
             $("#res_sys").val(data.res_info.external_system);
             $("#res_loc").val(data.res_info.location);
             $("#res_dep").val(data.res_info.department);
              $("#res_own").val(data.res_info.owner);
-//////////////////////////////////
 
+///////////////////////////////// fill collection
             transfer = $('#select_coll').bootstrapTransfer(
                     {'target_id': 'multi-select-input',
                         'height': '8em',
                         'hilite_selection': true});
 
-            transfer.populate(data.allowed_coll);
-            transfer.set_values(data.assigned_coll);
+                transfer.populate(data.allowed_coll);
+                transfer.set_values(data.assigned_coll);
+
             ALLOWED_COLL_LIST = data.allowed_coll;
             ASSIGNED_COLL_LIS = data.assigned_coll;
         }

@@ -92,6 +92,13 @@
                     }
                 }
 
+
+                if (data.conn_info.connected_resource != null){
+                    $(".connected_res").val(data.conn_info.connected_resource);
+                }
+                if (data.conn_info.connecting_resource != null)
+                    $(".connecting_res").val(data.conn_info.connecting_resource);
+
             },
             error: function(xhr, str){
                 alert('Возникла ошибка: ' + xhr.responseText);
@@ -103,7 +110,7 @@
 //        $("<option></option>").appendTo('.connecting_res');
 //        $("<option></option>").appendTo('.connected_res');
 //    }
-    $(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
+    //$(".input").keyup(function(event){ $("#save_res").removeAttr('disabled'); });
 </script>
 
 <div class="span12">

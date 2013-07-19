@@ -12,8 +12,10 @@
             <th> # </th>
             <th> Name </th>
             <th> Description </th>
-            <th> Connecting resource </th>
-            <th> Connected resource </th>
+            <th> Connecting name </th>
+            <th> Connected name </th>
+            <th> Connecting type </th>
+            <th> Connected type </th>
             <th> Action </th>
         </tr>
         </thead>
@@ -25,6 +27,8 @@
             <td>{{ name.description }}</td>
             <td>{{ name.connecting_res_name }}</td>
             <td>{{ name.connected_res_name }}</td>
+            <td>{{ name.connecting_type }}</td>
+            <td>{{ name.connected_type }}</td>
             <td>
                 {% include "includes/element_search_btn.html"%}
             </td>

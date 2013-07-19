@@ -443,7 +443,7 @@ class Resource(BaseEntity):
         """Constructor
         """
         BaseEntity.__init__(self, *args, **kwargs)
-        self._base_attributes += ['resource_status', 'external_system', 'location', 'department', 'owner']
+        self._base_attributes += ['resource_name', 'resource_status', 'external_system', 'location', 'department', 'owner']
 
     def validate(self):
         """Validate resources attributes"""

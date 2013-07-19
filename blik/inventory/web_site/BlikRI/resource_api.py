@@ -24,10 +24,7 @@ class ResourceAPI(object):
         obj_list = []
         if isinstance(element, ResourceOperationalAPI):
             obj_list = element.findResources(resource_filter)
-        #elif isinstance(element, CollectionOperationalAPI):
-        #    obj_list = element.findCollections(resource_filter)
-        #elif isinstance(element, ConnectionOperationalAPI):
-        #    obj_list = element.findConnection(resource_filter)
+
 
         elems_list = []
         for item in obj_list:

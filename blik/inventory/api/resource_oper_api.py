@@ -10,15 +10,15 @@ class ResourceOperationalAPI:
         self.conf = InventoryConfiguration()
         self.db_conn = self.conf.get_backend_db(CONFIG_FILE)
 
-    def createResource(self, resource_type, status, description=None, 
+    def createResource(self, resource_type, resource_name, status, description=None,
                        external_system=None, location=None, department=None, owner=None, **add_params):
         """
         Create resource object and save it into database
         @return created resource object
         """
-        resource = Resource(specification_name=resource_type, resource_status=status,
+        resource = Resource(specification_name=resource_type, resource_name=resource_name, resource_status=status,
                             description=description, external_system=external_system, location=location,
-                            department=department, owner=owner, additional_parameters=add_params.itervalues().next())
+                            department=department, owner=owner, additional_parameters=add_params)
         resource.validate()
 
         self.db_conn.connect()
@@ -29,7 +29,7 @@ class ResourceOperationalAPI:
 
         return resource
 
-    def updateResource(self, resource_id, status=None, description=None, external_system=None,
+    def updateResource(self, resource_id, resource_name=None, status=None, description=None, external_system=None,
                        location=None, department=None, owner=None, **add_params):
         """
         Update resource information
@@ -39,6 +39,8 @@ class ResourceOperationalAPI:
         raw_resource = self.db_conn.get_entity(CommonDatabaseAPI.ET_RESOURCE, resource_id)
         resource = Resource(raw_resource)
 
+        if resource_name is not None:
+            resource.set_resource_name(resource_name)
         if status is not None:
             resource.set_resource_status(status)
         if description is not None:
@@ -52,9 +54,8 @@ class ResourceOperationalAPI:
         if owner is not None:
             resource.set_owner(owner)
 
-        for param_name, param_value in add_params.items():
-            for key, value in param_value.iteritems():
-                resource.set_attribute(key, value)
+        for param_name, param_value in add_params.iteritems():
+            resource.set_attribute(param_name, param_value)
 
         resource.validate()
         self.db_conn.save_entity(CommonDatabaseAPI.ET_RESOURCE, resource.to_dict())

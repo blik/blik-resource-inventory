@@ -3,19 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>Blik Inventory</title>
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap.css" rel="stylesheet">
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap-toggle-buttons.css" rel="stylesheet">
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/jquery.alerts.css" rel="stylesheet">
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/jquery.gritter.css" rel="stylesheet">
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/DT_bootstrap.css" rel="stylesheet">
-      <!--<link href="{{ MEDIA_URL }}/media/css/widgets.css" rel="stylesheet">
-      <link href="{{ MEDIA_URL }}/media/css/forms.css" rel="stylesheet">
-      <link href="{{ MEDIA_URL }}/media/css/base.css" rel="stylesheet">
-      <link href="{{ MEDIA_URL }}/media/css/admin.css" rel="stylesheet">-->
-      <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap-transfer.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap-toggle-buttons.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/jquery.alerts.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/jquery.gritter.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/DT_bootstrap.css" rel="stylesheet">
+      <!--<link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/widgets.css" rel="stylesheet">
+      <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/forms.css" rel="stylesheet">
+      <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/base.css" rel="stylesheet">
+      <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/admin.css" rel="stylesheet">-->
+      <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/bootstrap-transfer.css" rel="stylesheet">
 
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/kendo.default.min.css" rel="stylesheet">
-    <link href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/kendo.common.min.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/kendo.default.min.css" rel="stylesheet">
+    <link href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/css/kendo.common.min.css" rel="stylesheet">
 
     <style type="text/css">
         body {
@@ -59,7 +59,7 @@
         }
 
   .wrapper{
-    border: 1px dashed red;
+    цborder: 1px dashed red;
     height: 24px;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -68,15 +68,15 @@
 
 
     </style>
-    <link rel="shortcut icon" href="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/img/blink.png">
+    <link rel="shortcut icon" href=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/img/blink.png">
 
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/cookie.js"></script>
-      <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-transfer.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/cookie.js"></script>
+      <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-transfer.js"></script>
 
 
   </head>
-  <body class="yui-skin-sam" onload="init({{ spec_param_list }}, {{ items }}, '{{ parent_spec }}', '{{ type }}', {{ res_param_dict }}, {{allowed_coll}}, {{assigned_coll}})">
+  <body class="yui-skin-sam">
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container-fluid">
@@ -93,9 +93,9 @@
           <div class="well">
             <ul class="nav nav-list">
               <li class="nav-header"> List elements </li>
-              <li><a href="{{ settings.SITE_HOME }}/resource_search/"> Resources </a></li>
-              <li><a href="{{ settings.SITE_HOME }}/connection_search/"> Connections </a></li>
-              <li><a href="{{ settings.SITE_HOME }}/collection_search/"> Collections </a></li>
+              <li><a href="/resource_search/"> Resources </a></li>
+              <li><a href="/connection_search/"> Connections </a></li>
+              <li><a href="/collection_search/"> Collections </a></li>
               <li class="divider"></li>
               <li class="dropdown">
                 <a class="dropdown-toggle"
@@ -104,9 +104,9 @@
                   <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
-                 <li><a href="{{ settings.SITE_HOME }}/spec_search_res/"> Resources </a></li>
-                 <li><a href="{{ settings.SITE_HOME }}/spec_search_conn/"> Connections </a></li>
-                 <li><a href="{{ settings.SITE_HOME }}/spec_search_coll/"> Collections </a></li>
+                 <li><a href="/spec_search_res/"> Resources </a></li>
+                 <li><a href="/spec_search_conn/"> Connections </a></li>
+                 <li><a href="/spec_search_coll/"> Collections </a></li>
                 </ul>
               </li>
             </ul>
@@ -130,37 +130,31 @@
 
     <!-- javascript
     ================================================== -->
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.dataTables.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.jeditable.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.alerts.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.json-2.3.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.toggle.buttons.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.gritter.min.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-dropdown.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.dataTables.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.jeditable.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.alerts.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.json-2.3.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.toggle.buttons.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/jquery.gritter.min.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-dropdown.js"></script>
 
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/DT_bootstrap.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-alert.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-transition.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-tab.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-scrollspy.js"></script>
-
-
-
-
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/BT-specification.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/BT-resource.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/cookie.js"></script>
-
-    <!--<script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/kendo.treeview.min.js"></script>
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-multiselect.js__">
-        <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/SelectFilter2.js"></script></script>-->
-    <script src="{{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/kendo.web.min.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/DT_bootstrap.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-alert.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-modal.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-transition.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-tab.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-scrollspy.js"></script>
 
 
 
 
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/BT-specification.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/BT-resource.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/cookie.js"></script>
 
-
+    <!--<script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/kendo.treeview.min.js"></script>
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/bootstrap-multiselect.js__">
+        <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/SelectFilter2.js"></script></script>-->
+    <script src=" {{ settings.SITE_HOME }}{{ MEDIA_URL }}/media/js/kendo.web.min.js"></script>
   </body>
 </html>

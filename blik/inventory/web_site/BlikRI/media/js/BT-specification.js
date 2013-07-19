@@ -43,6 +43,12 @@ $.ajax({
 
            // $("#allowed_types").val(data.allowed_types);
 
+///////////////////////////////////////// for create connection spec
+            if (data.spec_param_list.connected_type != null)
+                $("#conned_type").val(data.spec_param_list.connected_type);
+            if (data.spec_param_list.connecting_type != null)
+                $("#connion_type").val(data.spec_param_list.connecting_type);
+
     },
     error: function(xhr, str){
        alert('Возникла ошибка: ' + xhr.responseText);
@@ -161,8 +167,8 @@ function addSpecParam() {
 
             //_addParentParamSpec();
             if (_addParentParamSpec() != false){
-                alert('parent')
-                alert('SPEC_PARAM_LIST: '+ $.toJSON(SPEC_PARAM_LIST))
+                //alert('parent')
+                //alert('SPEC_PARAM_LIST: '+ $.toJSON(SPEC_PARAM_LIST))
                 if ($('.k-first')[0] != undefined)
                     treeview.append({text: param_name}, $('.k-first')); //add parent to root node
                 else{
@@ -382,7 +388,7 @@ function saveSpecification(spec_type){
             data_dict['conned_type'] = $('#conned_type').val();
             data_dict['allowed_types'] = $('#allowed_types').val();
             data_dict['param_spec'] = $.toJSON(SPEC_PARAM_LIST);
-            alert('data_dict:'+ $.toJSON(data_dict))
+            //alert('data_dict:'+ $.toJSON(data_dict))
 
     $.ajax({
         type: "POST",

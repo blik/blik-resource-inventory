@@ -3,6 +3,7 @@
 """ implemented all API """
 
 import json
+import time
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -44,6 +45,7 @@ class SetViews():
         elif request.POST:
             conn_list = conn.delete(request.POST.get('del_id', None), request.GET)
 
+        #spec = self._search_spec('connection', spec_name=request.GET['specification_name'])
         return render_to_response('connection_search.html',
                                   {'res_list': conn_list, 'elem_type': ELEM_TYPES['IS_CONN']},
                                   context_instance=RequestContext(request))
@@ -51,8 +53,11 @@ class SetViews():
     def connection(self, request):
         """ Get connection for create/modify """
         conn_id = request.GET.get('elem_id',)
+        # MODIFY connection
         if conn_id:
-            return render_to_response('connection.html', { 'conn_id': conn_id,})
+            return render_to_response('connection.html',
+                                      {'conn_id': conn_id},
+                                      context_instance=RequestContext(request))
 
         # create connection
         conn_spec_list = self._search_spec(ELEM_TYPES['IS_CONN'])
@@ -79,7 +84,7 @@ class SetViews():
                 for res in raw_connecting_res_list:
                     connecting_res_dict = dict()
                     connecting_res_dict['connecting_res_id'] = res['id']
-                    connecting_res_dict['res_name'] = res['specification_name']
+                    connecting_res_dict['res_name'] = res['resource_name']
                     connecting_res_list.append(connecting_res_dict)
 
             res_filter = {'specification_name': str(connected_type)}
@@ -89,7 +94,7 @@ class SetViews():
                 for res in raw_connected_res_list:
                     connected_res_dict = dict()
                     connected_res_dict['connected_res_id'] = res['id']
-                    connected_res_dict['res_name'] = res['specification_name']
+                    connected_res_dict['res_name'] = res['resource_name']
                     connected_res_list.append(connected_res_dict)
 
             # for TreeMenu
@@ -155,7 +160,7 @@ class SetViews():
 
     def resource(self,request):
         """ Render resource page for creating and modifying """
-        # get resource for modify
+        # render UPDATE page for resource
         if request.GET.get('elem_id', None):
             # get connections list
             connection = ConnectionAPI()
@@ -168,7 +173,7 @@ class SetViews():
             return render_to_response('resource.html',
                                       {'res_id': request.GET['elem_id'], 'conn_list': list(set(conn_list))},
                                       context_instance=RequestContext(request))
-
+        # render CREATE page resource
         # get specs for creating resource
         res_spec_list = self._search_spec(ELEM_TYPES['IS_RES'])
         return render_to_response('resource_create.html',
@@ -190,29 +195,29 @@ class SetViews():
             allowed_spec_coll_list = []
             if raw_spec_list:
                 for spec in raw_spec_list:
-                    s = spec.to_dict()
-                    allowed_spec_coll_list.append(s['type_name'])
+                    spec_dict = spec.to_dict()
+                    allowed_spec_coll_list.append(spec_dict['type_name'])
 
-            # find created collections
-            collection  = CollectionOperationalAPI()
-            coll_filter = {'specification_name__in': allowed_spec_coll_list}
-            raw_allow_coll_list = collection.findCollections(coll_filter)
+            # find created collections and fill 'Allowed collection' on web page
+            collection = CollectionOperationalAPI()
+            raw_allow_coll_list = collection.findCollections({'specification_name__in': allowed_spec_coll_list})
             allow_coll_list = []
             for coll in raw_allow_coll_list:
-                c = coll.to_dict()
-                d = dict()
-                d['value'] = c.pop('_id')
-                d['content'] = c.pop('specification_name')
-                allow_coll_list.append(d)
-                # find assigned resource in collections
-            coll_filter = {'resources': res_id}
-            raw_coll_list = collection.findCollections(coll_filter)
+                coll_dict = coll.to_dict()
+                # change key for display in collection on web page
+                time_dict = dict()
+                time_dict['value'] = coll_dict.pop('_id')
+                time_dict['content'] = coll_dict.pop('specification_name')
+                allow_coll_list.append(time_dict)
+
+            # find assigned resource in collections and fill 'Assigned collection' on web page
+            raw_coll_list = collection.findCollections({'resources': res_id})
             assigned_coll_list = []
             for coll in raw_coll_list:
-                c = coll.to_dict()
-                assigned_coll_list.append(c['_id'])
+                coll_dict = coll.to_dict()
+                assigned_coll_list.append(coll_dict['_id'])
 
-            # treeMenu
+            # for treeMenu. replace keys :( TODO for refactoring
             spec_params_json = json.dumps(res_spec['params_spec'])
             to_text = spec_params_json.replace('param_name','text')
             items = to_text.replace('children_spec','items')
@@ -222,7 +227,7 @@ class SetViews():
                          'items': json.loads(items),
                          'allowed_coll': allow_coll_list,
                          'assigned_coll': assigned_coll_list}
-
+            time.sleep(0.1)
             return HttpResponse(json.dumps(json_data), mimetype="application/json")
 
         return HttpResponse()
@@ -230,20 +235,21 @@ class SetViews():
     def res_search_del(self, request):
         """ Searching and deleting resource """
         res = ResourceAPI()
+        # SEARCH resource
         if request.GET and not request.POST:
 
             res_list = res.search_resource(request.GET)
-            #json_data = {'res_list': res_list, 'elem_type': ELEM_TYPES['IS_RES']}
-            #return HttpResponse(json.dumps(json_data), mimetype="application/json")
-
             return render_to_response('resource_search.html',
                                       {'res_list': res_list, 'elem_type': ELEM_TYPES['IS_RES']},
                                       context_instance=RequestContext(request))
+        # DELETE resource
         elif request.POST:
-            res_list = res.del_resource(request.POST.get('del_id',), request.GET)
-            return render_to_response('resource_search.html',
-                                      {'res_list': res_list, 'elem_type': ELEM_TYPES['IS_RES']},
-                                      context_instance=RequestContext(request))
+            if request.POST.get('del_id', None):
+                res_list = res.del_resource(request.POST['del_id'], request.GET)
+                return render_to_response('resource_search.html',
+                                          {'res_list': res_list, 'elem_type': ELEM_TYPES['IS_RES']},
+                                          context_instance=RequestContext(request))
+            return HttpResponse()
 
         # render empty page
         return render_to_response('resource_search.html',
@@ -274,6 +280,7 @@ class SetViews():
         elem_id = request.POST.get('elem_id',)
 
         res_status = request.POST.get('res_status',)
+        res_name = request.POST.get('res_name1',)
         res_sys = request.POST.get('res_sys',)
         res_loc = request.POST.get('res_loc',)
         res_dep = request.POST.get('res_dep',)
@@ -296,13 +303,13 @@ class SetViews():
             spec = self._search_spec(ELEM_TYPES['IS_RES'], elem_type)[0]
             Resource.setup_specification([ResourceSpecification(spec)])
 
-            if elem_id:
+            if elem_id: # UPDATE
                 self._update_collections(old_assigned_to_coll, new_assigned_to_coll, elem_id)
-                resource.updateResource(elem_id, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
-                                        additional_parameters=json.loads(raw_param_res))
-            else:
-                resource.createResource(elem_type, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
-                                        additional_parameters=json.loads(raw_param_res))
+                resource.updateResource(elem_id, res_name, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
+                                        **json.loads(raw_param_res))
+            else: # CREATE
+                resource.createResource(elem_type, res_name, res_status, elem_desc, res_sys, res_loc, res_dep, res_own,
+                                        **json.loads(raw_param_res))
             return HttpResponse()
 
         # collections
@@ -409,13 +416,13 @@ class SetViews():
             for tt in connecting_res:
                 conn_res_id = tt.to_dict()['connected_resource']
                 res_info = resource.getResourceInfo(conn_res_id).to_dict()
-                connected_list.append(res_info['specification_name'])
+                connected_list.append(res_info['resource_name'])
 
             connecting_list = []
             for tt in connected_res:
                 conn_res_id = tt.to_dict()['connecting_resource']
                 res_info = resource.getResourceInfo(conn_res_id).to_dict()
-                connecting_list.append(res_info['specification_name'])
+                connecting_list.append(res_info['resource_name'])
             return HttpResponse(json.dumps({'connecting_list': connecting_list,
                                             'connected_list': connected_list}), mimetype="application/json")
 
@@ -423,9 +430,10 @@ class SetViews():
         if request.is_ajax():
             spec_id = request.GET.get('spec_id',)
             raw_spec = self.specification.getSpecification(spec_id).to_dict()
+            spec_param_json = json.dumps(raw_spec)
 
             json_params = {}
-            # for connections
+            # for connections get connected_type and connecting_type. for create conn spec
             if raw_spec['spec_type'] == ELEM_TYPES['IS_CONN']:
                 connected_type = raw_spec['connected_type']
                 connecting_type = raw_spec['connecting_type']
@@ -439,7 +447,7 @@ class SetViews():
                     for res in raw_connecting_res_list:
                         connecting_res_dict = dict()
                         connecting_res_dict['connecting_res_id'] = res['id']
-                        connecting_res_dict['res_name'] = res['specification_name']
+                        connecting_res_dict['res_name'] = res['resource_name']
                         connecting_res_list.append(connecting_res_dict)
                     json_params['connecting_res_list'] = connecting_res_list
 
@@ -450,29 +458,30 @@ class SetViews():
                     for res in raw_connected_res_list:
                         connected_res_dict = dict()
                         connected_res_dict['connected_res_id'] = res['id']
-                        connected_res_dict['res_name'] = res['specification_name']
+                        connected_res_dict['res_name'] = res['resource_name']
                         connected_res_list.append(connected_res_dict)
                     json_params['connected_res_list'] = connected_res_list
 
-                    # for create specifications
-            load_page =  request.META.get('HTTP_REFERER').split('/')
-            spec_param_json = json.dumps(raw_spec)
-            if load_page[3] in SPEC_TYPE.keys():
+                #for treeMenu
+                to_text = spec_param_json.replace('param_name','text')
+                items = to_text.replace('children_spec','items')
+
+                json_params['params_list'] = json.loads(items)
+                json_params['connected_type'] = raw_spec.get('connected_type', None)
+                json_params['connecting_type'] = raw_spec.get('connecting_type', None)
+                json_params['spec_param_list'] = json.loads(spec_param_json)
+
+                return HttpResponse(json.dumps(json_params), mimetype="application/json")
+
+            # for create specifications
+            #load_page =  request.META.get('HTTP_REFERER').split('/')
+            #if load_page[3] in SPEC_TYPE.keys():
+            else:
                 to_text = spec_param_json.replace('param_name','text')
                 items = to_text.replace('children_spec','items')
 
                 json_params = {'spec_param_list': json.loads(spec_param_json), 'params_list': json.loads(items)}
                 return HttpResponse(json.dumps(json_params), mimetype="application/json")
-
-            #for treeMenu
-            to_text = spec_param_json.replace('param_name','text')
-            items = to_text.replace('children_spec','items')
-
-            json_params['params_list'] = json.loads(items)
-            json_params['connected_type'] = raw_spec.get('connected_type', None)
-            json_params['connecting_type'] = raw_spec.get('connecting_type', None)
-            json_params['spec_param_list'] = json.loads(spec_param_json)
-            return HttpResponse(json.dumps(json_params), mimetype="application/json")
 
     def get_spec(self, request):
         """ Get specification for edit """
@@ -488,8 +497,17 @@ class SetViews():
 
         #render page for create
         items_list = self._search_spec(SPEC_TYPE[render_page[1]])
+
+        res_type_list = []
+        if SPEC_TYPE[render_page[1]] == 'connection':
+            # find all resource type
+            res_type_list_raw = self._search_spec('resource')
+            for res in res_type_list_raw:
+                res_type_list.append({'id': res['id'], 'name': res['type_name']})
+
         return render_to_response(render_page[1] + '_create.html',
-                                  {'items_list': items_list},
+                                  {'items_list': items_list,
+                                   'res_type_list': res_type_list},
                                   context_instance=RequestContext(request))
 
     def get_specification_params(self, request):
@@ -498,11 +516,17 @@ class SetViews():
             raw_spec = self.specification.getSpecification(request.GET['spec_id']).to_dict()
             spec_param_json = json.dumps(raw_spec['params_spec'])
 
+            # find all resource type
+            res_type_list = []
+            res_type_list_raw = self._search_spec('resource')
+            for res in res_type_list_raw:
+                res_type_list.append({'id': res['id'], 'name': res['type_name']})
+
             #for treeMenu
             to_text = spec_param_json.replace('param_name','text')
             items = to_text.replace('children_spec','items')
-
             json_data = {'spec_info': raw_spec,
+                         'res_type_list': res_type_list,
                          'items': json.loads(items)}
 
             return HttpResponse(json.dumps(json_data), mimetype="application/json")

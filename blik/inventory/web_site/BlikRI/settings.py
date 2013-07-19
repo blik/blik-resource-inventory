@@ -4,7 +4,7 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-SITE_HOME = "/blik"
+SITE_HOME = ""
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
